@@ -1,0 +1,260 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{# <div id="win_width">aaa</div> #}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content0 %}
+<div class="container-fluid">
+  <div class="row flex-nowrap">
+    <div id="side-menubar" class="col-auto col-md-3 col-xl-2 overflow-auto">
+      <div class="d-flex flex-column align-items-start">
+        <span class="fs-5">メンバリスト</span>
+        <ul id="menu"
+	    class="nav nav-pills flex-column align-items-start col-12">
+	  {% if user.get_eid %}
+	  <li class="nav-item">
+	    <a class="nav-link" aria-current="page"
+	       href="{% url 'swsm:monthschedules_eid' user.get_eid date.year date.month %}">
+	      <span class="text-nowrap">
+		{{ user.usersetting.nickname|default:user.get_short_name }}
+		(自分)
+	      </span>
+	    </a>
+	  </li>
+	  {% endif %}
+
+          <li class="col-12">
+	    {% with is_expanded=is_target_in_favorite|yesno:'true,false' %}
+	    <button id="id-collapse-0"
+		    class="btn btn-toggle d-flex align-items-center col-12"
+		    {{favorite_group_list|yesno:',disabled'}}
+		    data-bs-toggle="collapse"
+		    data-bs-target="#submenu1"
+		    aria-expanded="{{ is_expanded }}"
+		    aria-current="{{ is_expanded }}">
+	      {{ favorite_group.name|default:"お気に入り." }}
+            </button>
+	    {% endwith %}
+	    {% with is_show=is_target_in_favorite|yesno:'show,' %}
+            <ul class="collapse {{ is_show }} nav flex-column align-items-start"
+		id="submenu1" data-bs-parent="#menu">
+	      {% endwith %}
+	      {% for fgu in favorite_group_list %}
+	      <li class="nav-item">
+		<a class="nav-link" aria-current="page"
+		   href="{% url 'swsm:monthschedules_eid' fgu.member.get_eid date.year date.month %}">
+		  <span class="text-nowrap">
+		    {# {{ forloop.counter }} #}
+		    {{ fgu.member.usersetting.nickname|default:fgu.member.get_short_name }}
+		  </span>
+		</a>
+	      </li>
+	      {% endfor %}
+
+	      {% comment %}
+	      {% with ''|center:30 as range %}
+	      {% for _ in range %}
+	      <li class="nav-item">
+		<a class="nav-link" aria-current="page" href="#">
+		  <span class="text-nowrap">
+		    {{ forloop.counter }}
+		  </span>
+		</a>
+	      </li>
+	      {% endfor %}
+	      {% endwith %}
+	      {% endcomment %}
+            </ul>
+          </li>
+
+          <li class="col-12">
+	    {% with is_expanded=is_target_in_favorite|yesno:'false,true' %}
+	    <button id="id-collapse-1"
+		    class="btn btn-toggle d-flex align-items-center col-12"
+		    data-bs-toggle="collapse"
+		    data-bs-target="#submenu2"
+		    aria-expanded="{{ is_expanded }}"
+		    aria-current="{{ is_expanded }}">
+	      全員
+            </button>
+	    {% endwith %}
+	    {% with is_show=is_target_in_favorite|yesno:',show' %}
+            <ul class="collapse {{ is_show }} nav flex-column align-items-start"
+		id="submenu2" data-bs-parent="#menu">
+	      {% endwith %}
+	      {# data-bs-parent で親を同じにしておくと、開くのは一つになる。#}
+	      {% for u in userlist %}
+	      <li class="nav-item">
+		<a class="nav-link" aria-current="page"
+		   href="{% url 'swsm:monthschedules_eid' u.get_eid date.year date.month %}">
+		  <span class="text-nowrap">
+		    {# {{ forloop.counter }} #}
+		    {{ u.usersetting.nickname|default:u.get_short_name }}
+		  </span>
+		</a>
+	      </li>
+	      {% endfor %}
+
+	      {% comment %}
+	      {% with ''|center:30 as range %}
+	      {% for _ in range %}
+	      <li class="nav-item">
+		<a class="nav-link" aria-current="page" href="#">
+		  <span class="text-nowrap">
+		    {{ forloop.counter }}
+		  </span>
+		</a>
+	      </li>
+	      {% endfor %}
+	      {% endwith %}
+	      {% endcomment %}
+            </ul>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+
+    <div class="col py-3" id="main-content">
+      <h5 class="col-auto d-flex">
+	■
+	{{ target_user.usersetting.nickname|default:"(名前はまだ無い)" }}
+	&lt;{{ target_user.email }}&gt; の予定
+
+	{% if user.is_authenticated and target_user.pk == user.pk %}
+	{# 自分の場合は編集へのリンクを #}
+	{% with month_curr as m %}
+	<a class="mx-2"
+	   href="{% url 'swsm:monthschedules' m.year m.month %}">
+	  <small><small>編集</small></small>
+	</a>
+	{% endwith %}
+
+	{% elif user.is_authenticated and target_user.pk != user.pk %}
+	{# 自分じゃ無い場合 #}
+
+	{% if favorite_group_user.get_eid and favorite_group.name %}
+	{# 対象ユーザが既に「お気に入り」に入っている場合、削除へのリンクを #}
+	<form method="POST"
+	      action="{% url 'swsm:favorite_group_member_del' %}">
+	  {% csrf_token %}
+	  <input name="next" type="hidden" value="{{ request.path }}">
+	  <input name="fgu_eid" type="hidden"
+		 value="{{ favorite_group_user.get_eid }}">
+          <button type="submit" class="btn text-nowrap mx-2"
+		  name="favorite_group" value="del">
+	    <small><small>
+		{{ favorite_group.name }}から削除
+	    </small></small>
+	  </button>
+	</form>
+
+	{% elif favorite_group.get_eid and target_user.get_eid %}
+	{# 「お気に入り」に、追加へのリンクを #}
+	<form method="POST"
+	      action="{% url 'swsm:favorite_group_member_add' %}">
+	  {% csrf_token %}
+	  <input name="next" type="hidden" value="{{ request.path }}">
+	  <input name="fg_eid" type="hidden" value="{{ favorite_group.get_eid }}">
+	  <input name="mm_eid" type="hidden" value="{{ target_user.get_eid }}">
+          <button type="submit" class="btn text-nowrap mx-2"
+		  name="favorite_group" value="add">
+	    <small><small>
+		{{ favorite_group.name }}に追加
+	    </small></small>
+	  </button>
+	</form>
+
+	{% endif %}
+	{% endif %}
+      </h5>
+      <hr>
+
+      <div class="row">
+	<div class="col-12 col-lg-10 d-flex justify-content-evenly">
+	  <a href="{% url 'swsm:monthschedules_eid' target_user.get_eid month_prev.year month_prev.month %}">前月&lt;&lt;</a>
+	  <span class="lead">
+	    {% with datafirst=data|first datalast=data|last %}
+	    {{ datafirst.date }}
+	    〜
+	    {{ datalast.date }}
+	    {% endwith %}
+	  </span>
+	  <a href="{% url 'swsm:monthschedules_eid' target_user.get_eid month_next.year month_next.month %}">&gt;&gt;次月</a>
+	</div>
+	<div class="col-12 col-lg-10 d-flex justify-content-center">
+	  {% if today.month != data.0.date.month or today.year != data.0.date.year %}
+	  <a href="{% url 'swsm:monthschedules_eid' target_user.get_eid %}">
+	    （{{today|date:"Y年n月"}}へ）
+	  </a>
+	  {% endif %}
+	</div>
+      </div>
+      <hr>
+
+      <table class="table table-bordered">
+	<thead>
+	  <tr>
+	    <th class="text-nowrap"></th>
+	    <th class="text-nowrap">日付</th>
+	    <th class="text-nowrap">勤務/休暇</th>
+	    <th class="text-nowrap">出社/在宅</th>
+	    <th class="text-nowrap">出社予定時刻</th>
+	    <th class="text-nowrap">在宅予定時刻</th>
+	    <th class="text-nowrap">補足</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for x in data %}
+	  <tr>
+	    <th class="text-nowrap">{{ x.mark_add }}</th>
+	    <th class="text-nowrap">{{ x.date|date:"n月j日(D)" }}</th>
+
+	    <td class="text-nowrap">{{ x.vacation }}</td>
+	    <td class="text-nowrap">{{ x.working }}</td>
+	    <td class="text-nowrap">{{ x.ws_time }} - {{ x.we_time }}</td>
+	    <td class="text-nowrap">{{ x.zs_time }} - {{ x.ze_time }}</td>
+	    <td>{{ x.description }}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extrajs %}
+<style>
+  {# 以下アニメーションの設定。 #}
+  .btn-toggle::before {
+      line-height: 0;
+      content: url('data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>');
+      transition: transform .35s ease;
+      /* transform-origin: .5em 50%; */
+  }
+
+  .btn-toggle[aria-expanded="true"]::before {
+      transform: rotate(90deg);
+  }
+</style>
+<script>
+  (function($){
+      console.log("window.width="+$(window).width());
+      $("#win_width").text("window.width="+$(window).width())
+      $(window).resize(function(e){
+	  $("#win_width").text("window.width="+$(window).width())
+      });
+
+      // いったんサイドメニューバーの高さを低めに設定して、
+      // メインの高さが決まってから、その高さをサイドメニューバーに設定する
+      $("#side-menubar").height(100)
+      $("#side-menubar").height($("#main-content").height())
+  })(jQuery);
+</script>
+{% endblock %}

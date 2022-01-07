@@ -1,0 +1,33 @@
+
+<div class="d-flex justify-content-between">
+  <a href="{% url apptag month_prev.year month_prev.month month_prev.day %}">前月&lt;&lt;</a>
+  <span>{{ month_curr|date:"Y年n月" }}</span>
+  <a href="{% url apptag month_next.year month_next.month month_next.day %}">&gt;&gt;次月</a>
+</div>
+
+<table class="table table-sm" style="table-layout: fixed;">
+  <thead>
+    <tr>
+      {% for w in month_week_names %}
+      <th>{{ w }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for week in month_days %}
+    <tr>
+      {% for day in week %}
+      <td {% if today == day %}class="table-primary"{% endif %}>
+        <a href="{% url apptag day.year day.month day.day %}">
+	  {% if month_curr.month != day.month %}
+	  <div class="small">{{ day.day }}</div>
+	  {% else %}
+	  {{ day.day }}
+	  {% endif %}
+	</a>
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,35 @@
+{% extends 'swsm/base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+<div class="d-flex justify-content-center">
+  <div class="card">
+    <h1 class="card-header">ログインしました！</h1>
+    <div class="card-body">
+      <div class="card-text">
+	無事に認証が完了しました。<br />
+	以後、このサイトの機能を使うことができます。<br />
+	下のボタンからホームへ移動してください。
+      </div>
+      <a class="btn btn-primary m-2" href="{% url 'swsm:home' %}" role="button">ホームへ</a>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="d-flex justify-content-center">
+  <div class="card">
+    <h1 class="card-header">ログインに失敗しました……</h1>
+    <div class="card-body">
+      <div class="card-text">
+	残念ながら認証に失敗しました。<br />
+	下のボタンからホームへ移動し、
+	もう一度ログインを試してみてください。<br />
+	それでもダメな場合は管理者までご相談ください。
+      </div>
+      <a class="btn btn-primary m-2" href="{% url 'swsm:home' %}" role="button">ホームへ</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

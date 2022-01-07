@@ -1,0 +1,50 @@
+This is 'Simple Work Schedule Management', as swsm
+
+# uname -a
+Linux yy012 5.10.0-8-amd64 #1 SMP Debian 5.10.46-4 (2021-08-03) x86_64 GNU/Linux
+
+# python -V
+Python 3.9.2
+
+# pip list
+Package       Version
+------------- -------
+asgiref       3.4.1
+Django        3.2.9
+mysqlclient   2.1.0
+pip           20.3.4
+pkg-resources 0.0.0
+pytz          2021.3
+setuptools    44.1.1
+sqlparse      0.4.2
+uWSGI         2.0.20
+wheel         0.37.0
+
+
+# Apache をインストールした後でやる (コマンド 'apxs' が無いとエラーになる (のでまだインストールしてない))
+% pip install mod_wsgi
+% pip install mod-wsgi-httpd
+
+
+# python manage.py runserver 0:8000
+ or
+# uwsgi uwsgi.ini 
+
+settings.py: (確認すべき箇所)
+ALLOWED_HOSTS
+  許可するホストを。ex) ['localhost']
+
+SECRET_KEY
+  動かすだけならそのままでも動く。公開する場合は設定しなおした方がいい。
+  ex) python ./contrib/generate_secretkey.py
+
+DEFAULT_FROM_EMAIL
+EMAIL_HOST
+  ユーザ認証にメールを使うから適切に設定を。
+
+その他・備考:
+ * Holiday と Information は、/admin/ から追加・削除する。
+ * User の削除は /admin/ でできる。
+ * User の追加も、一応 /admin/ でできるが、あまり意味は無いと思う。
+ * 最初の admin 追加は、/admin/ からできない。直接イジるしかないかも。
+   contrib/set_users_admin.py を参照。

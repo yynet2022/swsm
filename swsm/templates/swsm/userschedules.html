@@ -1,0 +1,92 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-md-3">
+    {% include 'swsm/includes/month.html' %}
+  </div>
+  <div class="col">
+    {% include 'swsm/includes/week.html' %}
+  </div>
+</div>
+
+<hr>
+<div class="row">
+  <div class="col">
+  </div>
+</div>
+
+<h5 class="col-12">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+  メンバ予定 〜 {{ date }} 〜
+</h5>
+<table class="table table-sm">
+  <caption class="text-end">お気に入り（★登録済 ☆未登録）、現状（○勤務中 ×勤務終了中 △中断中 ？不明）</caption>
+  <thead>
+    <tr>
+      <th class="text-center px-0">
+	<a href="{{ request.path }}?key=fr">★</a>
+	<a href="{{ request.path }}?key=f">☆</a>
+      </th>
+      <th>現状</th>
+      <th></th>
+      <th>名前
+	<a href="{{ request.path }}?key=n">▲</a>
+	<a href="{{ request.path }}?key=nr">▼</a>
+      </th>
+      <td>休暇
+	<a href="{{ request.path }}?key=v">▲</a>
+	<a href="{{ request.path }}?key=vr">▼</a>
+      </td>
+      <td>出社／在宅
+	<a href="{{ request.path }}?key=w">▲</a>
+	<a href="{{ request.path }}?key=wr">▼</a>
+      </td>
+      <td>出社予定時間</td>
+      <td>在宅予定時間</td>
+      <td>補足</td>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for q in qlist %}
+    <tr>
+      <th class="text-center px-0">
+	{{ q.favorite|yesno:"★,☆" }}
+      </th>
+      <th>
+      {{ q.user.workstatus.status_sf|default:"？" }}
+      </th>
+      <th>
+	{% if not q.schedule %}
+	×
+	{% endif %}
+      </th>
+      <th><a href="{% url 'swsm:monthschedules_eid' q.user.get_eid date.year date.month %}">
+	  {% if q.user.usersetting.nickname %}
+	  {{ q.user.usersetting.nickname }}
+	  {% else %}
+	  {{ q.user.get_short_name }}
+	  {% endif %}
+      </a></th>
+
+      <td>{{ q.schedule.vacation_f }}</td>
+      <td>{{ q.schedule.working_f }}</td>
+      <td>{{ q.schedule.ws_time_f }} - {{ q.schedule.we_time_f }}</td>
+      <td>{{ q.schedule.zs_time_f }} - {{ q.schedule.ze_time_f }}</td>
+      <td>{{ q.schedule.description }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+
+{% block extrajs %}
+{% endblock %}

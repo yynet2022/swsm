@@ -1,0 +1,21 @@
+{% extends 'swsm/base.html' %}
+
+{% block content %}
+{# コメント #}
+<div class="d-flex justify-content-center">
+  <div class="card">
+    <h1 class="card-header">まだログインされていないようです……</h1>
+    <div class="card-body">
+      <div class="card-text">
+	もしログインされていたならば、
+	何らからの理由により、
+	残念ながらログイン認証が外れてしまったようです。<br />
+	下のボタンからホームへ移動し、
+	もう一度ログインし直してみてください。<br />
+	それでもダメな場合は管理者までご相談ください。
+      </div>
+      <a class="btn btn-primary m-2" href="{% url 'swsm:home' %}" role="button">ホームへ</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

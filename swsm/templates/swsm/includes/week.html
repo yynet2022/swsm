@@ -1,0 +1,68 @@
+
+<div class="d-flex justify-content-evenly">
+  <a href="{% url apptag week_prev.year week_prev.month week_prev.day %}">前週&lt;&lt;</a>
+  <span>{{ week_first|date:"Y年n月j日" }} 〜 {{ week_last|date:"Y年n月j日" }}</span>
+  <a href="{% url apptag week_next.year week_next.month week_next.day %}">&gt;&gt;次週</a>
+</div>
+
+<table class="table table-sm" style="table-layout: fixed;">
+  <thead>
+    <tr>
+      <th style="width: 3.5em;"></th>
+      {% for w in week_names %}
+      <th>{{ w }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th></th>
+      {% for day,hol in week_holidays.items %}
+      <td {% if today == day %}class="table-primary"{% endif %}>
+        {% if week_first.month != week_last.month %}
+        {{ day | date:"n/j" }}
+        {% else %}
+        {{ day.day }}
+        {% endif %}
+        {% if hol %}<br />{{ hol }}{% endif %}
+      </td>
+      {% endfor %}
+    </tr>
+    <tr>
+      <th>休暇</th>
+      {% for s in week_schedules.values %}
+      <td>{{ s.get_vacation_display }}</td>
+      {% endfor %}
+    </tr>
+    <tr>
+      <th>出社</th>
+      {% for s in week_schedules.values %}
+      <td>
+	{% if s.vacation != 10 %}
+	{% if s.working == 10 or s.working == 20 %}
+	{{s.ws_time}}-{{s.we_time}}
+	{% endif %}
+	{% endif %}
+      </td>
+      {% endfor %}
+    </tr>
+    <tr>
+      <th>在宅</th>
+      {% for s in week_schedules.values %}
+      <td>
+	{% if s.vacation != 10 %}
+	{% if s.working == 20 or s.working == 30 %}
+	{{s.zs_time}}-{{s.ze_time}}
+	{% endif %}
+	{% endif %}
+      </td>
+      {% endfor %}
+    </tr>
+    <tr>
+      <th></th>
+      {% for s in week_schedules.values %}
+      <td>{{ s.description|linebreaks }}</td>
+      {% endfor %}
+    </tr>
+  </tbody>
+</table>

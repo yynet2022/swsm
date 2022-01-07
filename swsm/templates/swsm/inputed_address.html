@@ -1,0 +1,17 @@
+{% extends 'swsm/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="card">
+    <h1 class="card-header">メールが送信されました！</h1>
+    <div class="card-body">
+      <ol>
+	<li class="text-muted"> 右上の入力フォームでメールアドレスを入力し、
+	  ログインをクリックしてください。
+	<li class="lead"> しばらくお待ちいただくと、ログインするための認証メールが届きます。
+	<li> そこに記載されている URL をクリックしてログインしてください。
+      </ol>
+    </div>
+  </div>
+</div>
+{% endblock %}

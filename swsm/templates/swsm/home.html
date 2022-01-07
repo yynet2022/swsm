@@ -1,0 +1,289 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+{% comment %}
+<div class="row p-3 border border-primary">
+  <div class="col-12">
+    今日 <a href="{% url 'swsm:home' %}"> {{ today|date:"Y年n月j日(D)" }} </a>
+
+    <span id="id__demo_year">0000</span>年
+    <span id="id__demo_month">00</span>月
+    <span id="id__demo_day">00</span>日
+    <span id="id__demo_hour">00</span>時
+    <span id="id__demo_min">00</span>分
+    <span id="id__demo_sec">00</span>秒
+  </div>
+</div>
+{% endcomment %}
+
+<div class="row">
+  <div class="col-12 col-md-3">
+    {% include 'swsm/includes/month.html' %}
+  </div>
+  <div class="col">
+    {% include 'swsm/includes/week.html' %}
+  </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="row">
+  <div class="col-12 col-md-6 col-lg-4">
+    <h5 class="col-12 border-bottom border-primary border-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+      予定登録 〜 {{ date|date:"Y年n月j日(D)" }} 〜
+    </h5>
+
+    <form method="POST">
+      {{ form.non_field_errors }}
+      {% for field in form %}
+      <div class="form-group input-group" id="div_{{ field.id_for_label }}">
+	{% if not field.is_hidden %}
+        <label for="{{ field.id_for_label }}"
+	       class="col-sm-4 col-form-label">{{ field.label }}</label>
+        {{ field }}
+	{% if field.help_text %}
+        <span class="helptext">{{ field.help_text }}</span>
+	{% endif %}
+        {{ field.errors }}
+	{% else %}
+        {{ field }}
+        {{ field.errors }}
+	{% endif %}
+      </div>
+      {% endfor %}
+      {% csrf_token %}
+
+      <div class="btn-toolbar mt-2" role="toolbar">
+	<div class="btn-group" role="group" >
+	  <button type="submit" class="btn btn-primary ms-1" name="sch_submit" value="add" id="id__form_submit_add">登録</button>
+	  <button type="reset" class="btn btn-secondary ms-1" name="sch_reset" value="reset" id="id__form_reset">リセット</button>
+	</div>
+	<div class="btn-group ms-auto" role="group" >
+	  <button type="submit" class="btn btn-warning" name="sch_submit" value="del" id="id__form_submit_del">削除</button>
+	</div>
+      </div>
+
+      <!-- button type="button" class="btn btn-primary btn-block" data-bs-toggle="modal" data-bs-target="#exampleModal"></button -->
+
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+	    <div class="modal-header">
+	      <h5 class="modal-title" id="exampleModalLabel">確認</h5>
+	      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	    </div>
+	    <div class="modal-body">
+	      ホントに削除しますか？
+	    </div>
+	    <div class="modal-footer">
+	      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">削除しない</button>
+	      <button type="submit" class="btn btn-primary btn-block" name="sch_submit" value="del">削除する</button>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </form>
+
+    <div class="btn-toolbar mt-2" role="toolbar">
+      <a class="btn-secondary ms-auto nav-link active" aria-current="page" href="{% url 'swsm:monthschedules' month_curr.year month_curr.month %}">月一括入力へ &gt;&gt;</a>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-auto col-md-6 col-lg-4">
+    <h5 class="col-12">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      連絡事項
+    </h5>
+    <ul>
+      {% for info in informations %}
+      <li> {{ info.message }} </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="col-12 col-sm-auto col-lg-4">
+    <h5 class="col-12">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+      メンバ現状
+      <small><small>({% now "Y/n/j G:i" %} 時点)</small></small>
+    </h5>
+    <small class="col-12">（○勤務中 ×勤務終了中 △中断中 ？不明）</small>
+    {% if not favorite_group.name %}
+    <div class="col-12 d-flex justify-content-center">
+      <div class="card">
+	<div class="card-body">
+	  <p class="card-text">まだ設定が済んでいないようです。</p>
+	  <p class="card-text">
+	    ログインし、上のメニューにある設定から、
+	    あなたの名前の登録などを済ませると、
+	    お気に入り機能を使い、
+	    登録したメンバの勤務状況が分かるようになります。
+	  </p>
+	</div>
+      </div>
+    </div>
+    {% else %}
+    <ul class="nav nav-pills flex-column align-items-left" id="menu">
+      <li class="mx-3">
+	{% comment %}
+	<a class="nav-link btn-toggle px-0 mx-0 align-middle lead"
+	   href="#submenu1"
+	   data-bs-toggle="collapse"
+	   aria-expanded="true"
+	   aria-current="true">
+	  <i class="fs-4 bi-speedometer2"></i>
+	  <span>{{ favorite_group.name }}</span>
+	</a>
+	{% endcomment %}
+	<button id="id-collapse-0"
+		class="btn btn-toggle d-flex align-items-center col-12"
+		data-bs-toggle="collapse"
+		data-bs-target="#submenu1"
+		aria-expanded="true"
+		aria-current="true">
+	  <span class="lead">{{ favorite_group.name }}</span>
+	</button>	
+	<ul class="collapse show nav flex-column"
+	    id="submenu1" data-bs-parent="#menu">
+	  {% for fgu in favorite_group_list %}
+	  <li class="nav-item">
+	    <span class="text-nowrap">
+	      {{ fgu.member.workstatus.status_sf|default:"？" }}
+	      <a aria-current="page"
+		 href="{% url 'swsm:monthschedules_eid' fgu.member.get_eid month_curr.year month_curr.month %}">
+		{{ fgu.member.usersetting.nickname|default:fgu.member.get_short_name }}
+	      </a>
+	    </span>
+	  </li>
+	  {% empty %}
+	  <li class="nav-item">
+	    上のメニューの「メンバ予定」からメンバを選択し、
+	    お気に入りへ登録すると、
+	    登録したメンバの勤務状況が分かるようになります。
+	  </li>
+	  {% endfor %}
+	</ul>
+      </li>
+    </ul>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="border border-primary d-flex justify-content-center">
+  <div class="card">
+    <h1 class="card-header">おはようございます！</h1>
+    <div class="card-body">
+      <p class="lead">このサイトを利用するにはログインしてください。</p>
+      <ol>
+	<li> 右上の入力フォームでメールアドレスを入力し、
+	  ログインをクリックしてください。
+	<li> しばらくお待ちいただくと、ログインするための認証メールが届きます。
+	<li> そこに記載されている URL をクリックしてログインしてください。
+      </ol>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extrajs %}
+<style>
+  {# 以下アニメーションの設定。 #}
+  .btn-toggle::before {
+      line-height: 0;
+      content: url('data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>');
+      transition: transform .35s ease;
+      /* transform-origin: .5em 50%; */
+  }
+
+  .btn-toggle[aria-expanded="true"]::before {
+      transform: rotate(90deg);
+  }
+</style>
+{% if user.is_authenticated %}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.js"></script>
+<script>
+  (function($){
+      // timedropper
+      $("#id_ws_time, #id_we_time, #id_zs_time, #id_ze_time").timeDropper({
+          format: "HH:mm",
+          setCurrentTime: false,
+      });
+
+      function setupInputField () {
+	  var vac = $("#id_vacation").val();
+	  // 0:--, 10:終日, 20:AM休, 30:PM休
+	  var wok = $("#id_working").val();
+	  // 10:終日出社, 20:部分在宅, 30:終日在宅
+	  if (vac == 10) {
+	      $("#div_id_working").hide();
+	      $("#div_id_ws_time").hide();
+	      $("#div_id_we_time").hide();
+	      $("#div_id_zs_time").hide();
+	      $("#div_id_ze_time").hide();
+	  } else {
+	      $("#div_id_working").show();
+	      $("#div_id_ws_time").show();
+	      $("#div_id_we_time").show();
+	      $("#div_id_zs_time").show();
+	      $("#div_id_ze_time").show();
+	      if (wok == 10) {
+		  $("#div_id_zs_time").hide();
+		  $("#div_id_ze_time").hide();
+	      } else if (wok == 30) {
+		  $("#div_id_ws_time").hide();
+		  $("#div_id_we_time").hide();
+	      }
+	  }
+      };
+      setupInputField ();
+      $("#id_vacation, #id_working").change (setupInputField);
+
+      $('#id__form_reset').click(function(e){
+	  e.preventDefault();
+	  $(this).closest('form').get(0).reset();
+
+	  setupInputField ();
+      });
+
+      $("#id__form_submit_add").click(function() {
+	  $(this).html(
+              `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 更新中 ...`
+	  );
+      });
+
+      $("#id__form_submit_del").click(function() {
+	  $(this).html(
+              `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 削除中 ...`
+	  );
+      });
+
+      /*
+      setInterval(function() {
+	  var now_date = new Date();
+	  var yy = now_date.getFullYear();
+	  var mm = now_date.getMonth() + 1;
+	  var dd = now_date.getDate();
+	  var h = now_date.getHours();
+	  var m = now_date.getMinutes();
+	  var s = now_date.getSeconds();
+	  $("#id__demo_year").text(yy);
+	  $("#id__demo_month").text(mm);
+	  $("#id__demo_day").text(dd);
+	  $("#id__demo_hour").text(h);
+	  $("#id__demo_min").text(m);
+	  $("#id__demo_sec").text(s);
+      }, 500);
+      */
+  })(jQuery);
+</script>
+{% endif %}
+{% endblock %}

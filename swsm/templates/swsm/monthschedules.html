@@ -1,0 +1,428 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="form-group m-3" id="div_id__timedropper">
+  <div class="border border-primary p-1">
+    <div class="form-check form-switch">
+      <input type="checkbox" name="__timedropper" class="form-check-input"
+	     id="id__timedropper">
+      <span class="helptext">
+	timeDropper 入力をしたい場合はこのスイッチを ON に。</span>
+    </div>
+  </div>
+</div>
+
+{% comment %}
+<table class="border border-primary">
+  {% for form in formset %}
+  {{ form.as_table }}
+  {% endfor %}
+</table>
+{% endcomment %}
+
+<h5 class="col-12">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+  一括入力
+</h5>
+
+<div class="row">
+  <div class="col-12 col-lg-10 d-flex justify-content-evenly">
+    <a href="{% url 'swsm:monthschedules' month_prev.year month_prev.month %}">
+      前月&lt;&lt;</a>
+    <span class="lead">
+      {{ formset.0.date.value }} 〜
+      {% with formset|last as formlast %}
+      {{ formlast.date.value }}
+      {% endwith %}
+    </span>
+    <a href="{% url 'swsm:monthschedules' month_next.year month_next.month %}">
+      &gt;&gt;次月</a>
+  </div>
+  <div class="col-12 col-lg-10 d-flex justify-content-center">
+    {% if today.month != formset.0.date.value.month or today.year != formset.0.date.value.year %}
+    <a href="{% url 'swsm:monthschedules' %}">
+      （{{ today|date:"Y年m月"}}へ）
+    </a>
+    {% endif %}
+  </div>
+</div>
+<hr>
+
+{% if formset.total_error_count > 0 %}
+<div>
+ ★ エラーが {{ formset.total_error_count }} 箇所あるようです。
+</div>
+<div>
+  {{ formset.non_form_errors }}
+</div>
+<hr>
+{% endif %}
+
+{% if submit_message %}
+<div>
+  {{ submit_message }}
+</div>
+<hr>
+{% endif %}
+
+<form method="POST">
+<div class="row">
+  <div class="col-auto btn-group m-1 p-1" role="group">
+    <button type="submit" class="btn btn-primary ms-1" id="id__form_submit0"
+	    name="form_submit" value="update">更新</button>
+    <button type="reset" class="btn btn-secondary ms-1" id="id__form_reset0">
+      リセット</button>
+  </div>
+  <div class="col-auto border border-primary m-1 p-1" role="group">
+    <span class="text-nowrap">選択操作:</span>
+    <button type="button" class="btn btn-secondary ms-1 text-nowrap" id="id__mark_v0">休み解除</button>
+    <button type="button" class="btn btn-secondary ms-1 text-nowrap" id="id__mark_v10">終日休</button>
+    <button type="button" class="btn btn-secondary ms-1 text-nowrap" id="id__mark_v20">AM休</button>
+    <button type="button" class="btn btn-secondary ms-1 text-nowrap" id="id__mark_v30">PM休</button>
+    <button type="button" class="btn btn-secondary ms-1 text-nowrap" id="id__mark_w10">終日出社</button>
+    <button type="button" class="btn btn-secondary ms-1 text-nowrap" id="id__mark_w20">部分在宅</button>
+    <button type="button" class="btn btn-secondary ms-1 text-nowrap" id="id__mark_w30">終日在宅</button>
+    <button type="submit" class="btn btn-warning ms-3 text-nowrap"
+	    id="id__form_submit_del" name="form_submit" value="delete">削除</button>
+  </div>
+</div>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th class="text-nowrap">未</th>
+      <th class="text-nowrap">
+	<input type="checkbox" name="__sch_mark_sel" class="form-check-input"
+	       id="id__sch_mark_sel">
+      </th>
+      <th class="text-nowrap">日付</th>
+      <th class="text-nowrap">勤務/休暇</th>
+      <th class="text-nowrap">出社/在宅</th>
+      <th class="text-nowrap">出社予定時刻</th>
+      <th class="text-nowrap">在宅予定時刻</th>
+      <th class="text-nowrap">補足</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for form in formset %}
+    <tr>
+      <th>
+	{{ form.mark_add }}
+        {{ form.mark_add.errors }}
+      </th>
+      <th>
+	{{ form.mark_sel }}
+        {{ form.mark_sel.errors }}
+      </th>
+      <th class="text-nowrap">
+	{{ form.date }}
+	{{ form.date.value|date:"n月j日(D)" }}
+        {{ form.date.errors }}
+      </th>
+
+      <td>
+	<div id="div_{{ form.vacation.id_for_label }}">
+	  {{ form.vacation }}
+          {{ form.vacation.errors }}
+	</div>
+      </td>
+      <td>
+	<div id="div_{{ form.working.id_for_label }}">
+	  {{ form.working }}
+          {{ form.working.errors }}
+	</div>
+      </td>
+      <td>
+	<div id="div_{{ form.ws_time.id_for_label }}">
+	  <div class="input-group">{{ form.ws_time }}-{{ form.we_time }}</div>
+          <p>{{ form.ws_time.errors }}
+            {{ form.we_time.errors }}</p>
+	</div>
+	<div id="div_{{ form.we_time.id_for_label }}"></div>
+      </td>
+      <td>
+	<div id="div_{{ form.zs_time.id_for_label }}">
+	  <div class="input-group" >{{ form.zs_time }}-{{ form.ze_time }}</div>
+          <p>{{ form.zs_time.errors }}
+            {{ form.ze_time.errors }}</p>
+	</div>
+	<div id="div_{{ form.ze_time.id_for_label }}"></div>
+      </td>
+      <td>
+	<div id="div_{{ form.description.id_for_label }}">
+	  {{ form.description }}
+          {{ form.description.errors }}
+	</div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{{ formset.management_form }}
+{% csrf_token %}
+<div class="col-auto btn-group m-1 p-1" role="group">
+  <button type="submit" id="id__form_submit1" class="btn btn-primary"
+	  name="form_submit" value="update">更新</button>
+  <button type="reset" class="btn btn-secondary" id="id__form_reset1">リセット</button>
+</div>
+</form>
+{% endblock %}
+
+{% block extrajs %}
+{% if user.is_authenticated %}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.js"></script>
+<script>
+  (function($){
+      /* timeDropper 用。関数 val() で値を上書きしてるようだけど、
+       * それだとイベント change が起動しないから。ちょいと小細工をば。
+       */
+      /* ちょいと不要になったのでコメントアウト
+      var originalVal = $.fn.val;
+      $.fn.val = function(){
+          var prev;
+          if(arguments.length>0){
+              prev = originalVal.apply(this,[]);
+          }
+          var result =originalVal.apply(this,arguments);
+          if(arguments.length>0 && prev!=originalVal.apply(this,[]))
+              $(this).change();
+          return result;
+      };
+      */
+  
+      var max_days = 40
+      // console.log (">>>>>>>")
+      function timeform (n) {
+	  // timedropper
+	  [$("#id_form-"+n+"-ws_time"),
+	   $("#id_form-"+n+"-we_time"),
+	   $("#id_form-"+n+"-zs_time"),
+	   $("#id_form-"+n+"-ze_time")].forEach (function (e) {
+	       if (e.length) {
+		   e.timeDropper({
+		       format: "HH:mm",
+		       setCurrentTime: false,
+		   })
+	       }
+	   })
+      }
+
+      function timeform_off (n) {
+	  [$("#id_form-"+n+"-ws_time"),
+	   $("#id_form-"+n+"-we_time"),
+	   $("#id_form-"+n+"-zs_time"),
+	   $("#id_form-"+n+"-ze_time")].forEach (function (e) {
+	       if (e.length) {
+		   // console.log (e)
+		   e.prop({readonly:0}).removeClass("td-input").off()
+	       }
+	   })
+      }
+
+      function setupChangeEvent (n) {
+	  [$("#id_form-" + n + "-vacation"),
+	   $("#id_form-" + n + "-working")].forEach (function (e) {
+	       if (e.length) {
+		   e.change(function () {
+		       setupInputField(n)
+		   })
+	       }
+	   });
+
+	  /* 不要になったんで。
+	  [$("#id_form-" + n + "-vacation"),
+	   $("#id_form-" + n + "-working"),
+	   $("#id_form-" + n + "-ws_time"),
+	   $("#id_form-" + n + "-we_time"),
+	   $("#id_form-" + n + "-zs_time"),
+	   $("#id_form-" + n + "-ze_time")].forEach (function (e) {
+	       if (e.length) {
+		   e.change(function () {
+		       $("#id_form-"+n+"-mark_add").prop('checked', true)
+		   })
+	       }
+	   });
+	   */
+      }
+
+      function setupInputField (n) {
+	  var idn = "#id_form-" + n + "-"
+	  var vac = $(idn + "vacation").val()
+	  // 0:--, 10:終日, 20:AM休, 30:PM休
+
+	  var divn = "#div_id_form-" + n + "-"
+	  if (vac == 10) {
+	      ["working", "ws_time", "we_time", "zs_time", "ze_time"].forEach (
+		  function (e) {
+		      $(divn + e).hide()
+		  })
+	  } else {
+	      ["working", "ws_time", "we_time", "zs_time", "ze_time"].forEach (
+		  function (e) {
+		      $(divn + e).show()
+		  })
+
+	      var wok = $(idn + "working").val()
+	      // 10:終日出社, 20:部分在宅, 30:終日在宅
+	      if (wok == 10) {
+		  $(divn + "zs_time").hide()
+		  $(divn + "ze_time").hide()
+	      } else if (wok == 30) {
+		  $(divn + "ws_time").hide()
+		  $(divn + "we_time").hide()
+	      }
+	  }
+      }
+
+      function setup_timeform () {
+	  if ($("#id__timedropper").prop('checked')) {
+	      for (let i = 0; i < max_days; i ++) {
+		  timeform (i)
+	      }
+	  } else {
+	      for (let i = 0; i < max_days; i ++) {
+		  timeform_off (i)
+	      }
+	  }
+      }
+
+      setup_timeform ()
+      $("#id__timedropper").change (setup_timeform)
+      for (let i = 0; i < max_days; i ++) {
+	  setupChangeEvent (i)
+	  setupInputField (i)
+      }
+
+      function setup_sch_mark_sel () {
+	  var nqs = 0, nqson = 0
+	  for (let i = 0; i < max_days; i ++) {
+	      var w = $("#id_form-"+i+"-mark_sel")
+	      if (w.length) {
+		  nqs ++
+		  if (w.prop('checked')) {
+		      nqson ++
+		  }
+	      } else {
+		  break
+	      }
+	  }
+	  // console.log (nqs)
+	  // console.log (nqson)
+	  var w0 = $("#id__sch_mark_sel")
+	  if (nqson == 0) {
+	      w0.prop('checked', false)
+	      w0.prop('indeterminate', false)
+	  } else if (nqs == nqson) {
+	      w0.prop('checked', true)
+	      w0.prop('indeterminate', false)
+	  } else {
+	      w0.prop('checked', false)
+	      w0.prop('indeterminate', true)
+	  }
+      }
+
+      function changed_sch_mark_sel () {
+	  // console.log ($("#id__sch_mark_sel").prop('checked'))
+	  // console.log ($("#id__sch_mark_sel").prop('indeterminate'))
+	  var t = $("#id__sch_mark_sel").prop('checked')
+	  for (let i = 0; i < max_days; i ++) {
+	      let w = $("#id_form-"+i+"-mark_sel")
+	      if (w.length) {
+		  w.prop('checked', t)
+	      } else {
+		  break
+	      }
+	  }
+      }
+
+      setup_sch_mark_sel ()
+      for (let i = 0; i < max_days; i ++) {
+	  let w = $("#id_form-"+i+"-mark_sel")
+	  if (w.length) {
+	      w.change (setup_sch_mark_sel)
+	  } else {
+	      break
+	  }
+      }
+      $("#id__sch_mark_sel").change (changed_sch_mark_sel)
+
+      $('#id__form_reset0, #id__form_reset1').click(function(e){
+	  e.preventDefault();
+	  $(this).closest('form').get(0).reset();
+
+	  setup_timeform ()
+	  for (let i = 0; i < max_days; i ++) {
+	      setupInputField (i)
+	  }
+	  setup_sch_mark_sel ()
+      });
+
+      $("#id__form_submit0, #id__form_submit1").click(function() {
+	  $(this).html(
+              `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 更新中 ...`
+	  );
+      });
+
+      $("#id__form_submit_del").click(function() {
+	  $(this).html(
+              `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 削除中 ...`
+	  );
+      });
+
+      function mark_operations(s,v) {
+	  for (let i = 0; i < max_days; i ++) {
+	      let m = $("#id_form-" + i + "-mark_sel")
+	      if (m.length) {
+		  if (m.prop('checked')) {
+		      $("#id_form-" + i + "-" + s).val(v).change();
+		  }
+	      } else {
+		  break;
+	      }
+	  }
+      }
+
+      $("#id__mark_v0").click(function () {
+	  mark_operations ("vacation", 0);
+      });
+      $("#id__mark_v10").click(function () {
+	  mark_operations ("vacation", 10);
+      });
+      $("#id__mark_v20").click(function () {
+	  mark_operations ("vacation", 20);
+      });
+      $("#id__mark_v30").click(function () {
+	  mark_operations ("vacation", 30);
+      });
+      $("#id__mark_w10").click(function () {
+	  mark_operations ("working", 10);
+      });
+      $("#id__mark_w20").click(function () {
+	  mark_operations ("working", 20);
+      });
+      $("#id__mark_w30").click(function () {
+	  mark_operations ("working", 30);
+      });
+
+      // めんどうなんで、ここで行数をコントロールしちゃう。手抜きですな。
+      for (let i = 0; i < max_days; i ++) {
+	  let w = $("#id_form-"+i+"-description")
+	  if (w.length) {
+	      w.prop ('rows', 1)
+	  } else {
+	      break
+	  }
+      }
+  })(jQuery);
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,11 @@
+本システム (勤務予定表) より、
+メールアドレス <{{ user.email }}> 宛に送信しています。
+
+下記 URL よりログインが可能です。
+
+なお、有効期限は {{ expire }} です。
+それ以降、この URL は無効になります。
+
+<{{ protocol}}://{{ domain }}{% url 'swsm:authtokenemail' user.token eid %}>
+
+by 管理者＠勤務予定表 <{{ from_addr }}>

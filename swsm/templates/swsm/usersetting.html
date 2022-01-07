@@ -1,0 +1,84 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  {% if form.errors %}
+  <h4>エラーがあるようです。ご確認ください。</h2>
+  <div class="border border-primary m-3">
+    {{ form.errors }}
+  </div>
+  {% endif %}
+
+  <form method="POST">
+    {{ form.non_field_errors }}
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div class="form-group row" id="div_{{ field.id_for_label }}">
+      {% if field.is_hidden %}
+      <div>
+	{{ field }}
+	{{ field.errors }}
+      </div>
+
+      {% elif field.field.widget.input_type == 'checkbox' %}
+      <div class="form-check form-switch m-2">
+	<label for="{{ field.id_for_label }}"
+	       class="form-label">{{ field.label }}</label>
+	{{ field }}
+	{% if field.help_text %}
+	<span class="helptext">{{ field.help_text }}</span>
+	{% endif %}
+	{{ field.errors }}
+      </div>
+
+      {% else %}
+      <div class="input-group m-2 col-6">
+	<label for="{{ field.id_for_label }}"
+	       class="col-12 col-sm-4 col-lg-2 col-form-label">
+	  {{ field.label }}
+	</label>
+	<div class="col-12 col-sm-4 col-lg-2">{{ field }}</div>
+	{% if field.help_text %}
+	<span class="helptext">{{ field.help_text }}</span>
+	{% endif %}
+	{% if field.errors %}
+	<div class="border border-primary p-2">
+	  {{ field.errors }}
+	</div>
+	{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    <div class="btn-group">
+      <button class="btn btn-primary text-nowrap ms-1" type="submit" name="us_submit" value="ok">登録</button>
+      <button class="btn btn-secondary text-nowrap ms-1" type="reset">リセット</button>
+      <a class="btn btn-secondary text-nowrap ms-1" href="{% url 'swsm:home' %}">キャンセル (ホームへ)</a>
+    </div>
+  </form>
+</div>
+{# コメント #}
+{% endblock %}
+
+{% block extrajs %}
+{% if user.is_authenticated %}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.js"></script>
+<script>
+  $(function () {
+      // timedropper
+      $("#id_s_time, #id_e_time").timeDropper({
+          format: "HH:mm",
+          setCurrentTime: false,
+      });
+  });
+</script>
+{% endif %}
+{% endblock %}

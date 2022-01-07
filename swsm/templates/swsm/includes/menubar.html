@@ -1,0 +1,126 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+  <div class="d-flex mx-1">
+    <a class="navbar-brand" href="{% url 'swsm:home' %}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      勤務予定表
+    </a>
+    
+    {% if user.is_authenticated and with_workstatus %}
+    <form method="POST" action="{% url 'swsm:workstatus' %}">
+      {% csrf_token %}
+      <div class="input-group">
+      <input name="next" type="hidden" value="{{ request.path }}">
+      {% if not user.workstatus or user.workstatus.status == 0 %}
+      <button type="submit" class="btn btn-primary text-nowrap p-1"
+	      name="workstatus" value="in">勤務開始</button>
+      {% elif user.workstatus.status == 10 %}
+      <button type="submit" class="btn btn-primary text-nowrap p-1"
+	      name="workstatus" value="stop">勤務中断</button>
+      <button type="submit" class="btn btn-primary text-nowrap ms-1 p-1"
+	      name="workstatus" value="out">勤務終了</button>
+      {% elif user.workstatus.status == 20 %}
+      <button type="submit" class="btn btn-primary text-nowrap p-1"
+	      name="workstatus" value="in">勤務再開</button>
+      <button type="submit" class="btn btn-primary text-nowrap ms-1 p-1"
+	      name="workstatus" value="out">勤務終了</button>
+      {% endif %}
+      </div>
+    </form>
+    {% endif %}
+  </div>
+
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+      {# 一行コメント #}
+      {% comment %}
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page"
+	   href="{% url 'swsm:home' %}">ホーム</a>
+      </li>
+      {% endcomment %}
+
+      {% if user.is_authenticated %}
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page"
+	   href="{% url 'swsm:usersetting' %}">
+	  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+	  設定
+	</a>
+      </li>
+      <li class="nav-item">
+	<a class="nav-link active" href="{% url 'swsm:userlog' %}">
+	  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+	  ログ
+	</a>
+      </li>
+      {% endif %}
+
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page"
+	   href="{% url 'swsm:userschedules' %}">
+	  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+	  メンバ予定
+	</a>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+	  リンク
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <li><a class="dropdown-item" href="#">Action-1</a></li>
+          <li><a class="dropdown-item" href="#">Action-2</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#">Action-9</a></li>
+        </ul>
+      </li>
+
+      {% comment %}
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="#">ヘルプ</a>
+      </li>
+      {% endcomment %}
+    </ul>
+
+    <div class="d-flex justify-content-end align-items-center">
+      {% if user.is_authenticated %}
+
+      <span class="p-2 border border-primary rounded-pill">
+	{% if with_workstatus %}
+	{{ user.workstatus.get_status_display|default:"ログイン中" }}
+	{% else %}
+	ログイン中
+	{% endif %}
+      </span>
+
+      <span class="mx-1 text-center">
+	{{ user.usersetting.nickname|default:"(名前はまだ無い)" }}<br />
+	&lt;{{ user.email }}&gt;
+      </span>
+      <a class="btn btn-primary" href="{% url 'swsm:logout' %}">
+	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+	<span class="align-bottom" style="font-size: 45%;">ログアウト</span>
+      </a>
+      {% else %}
+
+      {% if userform %}
+      <form class="d-flex" method="POST" action="{% url 'swsm:inputaddress' %}">
+	{% csrf_token %}
+	{{ userform.email }}
+        <button class="btn btn-primary text-nowrap me-1"
+		type="submit" name="auth_submit" value="login">
+	  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-in"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+	  <span class="align-bottom" style="font-size: 45%;">ログイン</span>
+	</button>
+      </form>
+      {% endif %}
+
+      {% endif %}
+    </div>
+  </div>
+</nav>  

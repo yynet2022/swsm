@@ -1,0 +1,157 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<h5 class="col-auto d-flex">
+  ■
+  {{ user.usersetting.nickname|default:"(名前はまだ無い)" }}
+  &lt;{{ user.email }}&gt; のログ
+</h5>
+
+<form method="POST">
+<div class="col-12">
+  <table class="table d-inline table-sm">
+  <thead>
+    <tr>
+      <th scope="col" class="text-nowrap">
+	  <input type="checkbox" name="__sch_mark_sel" class="form-check-input"
+		 id="id__sch_mark_sel">
+	</th>
+      <th scope="col" class="text-nowrap">時刻</th>
+      <th scope="col" class="text-nowrap">メッセージ</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for form in formset %}
+    <tr>
+      <th scope="row">
+	{{ form.mark_sel }} {{ form.mark_sel.errors }}
+	{{ form.id }} {{ form.id.errors }}
+      </th>
+      <th scope="row">
+	{{ form.created_at }} {{ form.created_at.errors }}
+      </th>
+      <td>
+	{{ form.message }} {{ form.message.errors }}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <th scope="row"></th>
+      <th scope="row">{% now "Y-n-j G:i:s" %} </th>
+      <td>ログはありせん。</td>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{{ formset.management_form }}
+{% csrf_token %}
+<div class="col-auto btn-group m-1 p-1" role="group">
+  <button type="submit" id="id__form_submit1" class="btn btn-primary mx-2"
+	  name="form_submit" value="del">削除</button>
+  <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset1">リセット</button>
+</div>
+</form>
+
+<div>
+  <ul>
+    <li>チェックを入れたログを削除するこができます。</li>
+    <li>削除されたログは元に戻せません。</li>
+    <li>およそ三ヶ月を目安に、それ以前のログは管理者側で削除させてもらうかもしれません。</li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  (function($){
+      var max_logs = 256
+      var n = 0
+      for (let i = 0; i < max_logs; i ++) {
+	  if ($("#id_form-" + i + "-mark_sel").length) {
+	      n ++
+	  } else {
+	      break
+	  }
+      }
+      max_logs = n
+      console.log ("max_logs = " + max_logs)
+      function setup_sch_mark_sel () {
+	  var nqs = 0, nqson = 0
+	  for (let i = 0; i < max_logs; i ++) {
+	      var w = $("#id_form-"+i+"-mark_sel")
+	      if (w.length) {
+		  nqs ++
+		  if (w.prop('checked')) {
+		      nqson ++
+		  }
+	      } else {
+		  break
+	      }
+	  }
+	  // console.log (nqs)
+	  // console.log (nqson)
+	  var w0 = $("#id__sch_mark_sel")
+	  if (nqson == 0) {
+	      w0.prop('checked', false)
+	      w0.prop('indeterminate', false)
+	      $("#id__form_submit0, #id__form_submit1").prop('disabled',true)
+	  } else if (nqs == nqson) {
+	      w0.prop('checked', true)
+	      w0.prop('indeterminate', false)
+	      $("#id__form_submit0, #id__form_submit1").prop('disabled',false)
+	  } else {
+	      w0.prop('checked', false)
+	      w0.prop('indeterminate', true)
+	      $("#id__form_submit0, #id__form_submit1").prop('disabled',false)
+	  }
+      }
+
+      function changed_sch_mark_sel () {
+	  // console.log ($("#id__sch_mark_sel").prop('checked'))
+	  // console.log ($("#id__sch_mark_sel").prop('indeterminate'))
+	  var t = $("#id__sch_mark_sel").prop('checked')
+	  $("#id__form_submit0, #id__form_submit1").prop('disabled',!t)
+	  for (let i = 0; i < max_logs; i ++) {
+	      let w = $("#id_form-"+i+"-mark_sel")
+	      if (w.length) {
+		  w.prop('checked', t)
+	      } else {
+		  break
+	      }
+	  }
+      }
+
+      setup_sch_mark_sel ()
+      for (let i = 0; i < max_logs; i ++) {
+	  let w = $("#id_form-"+i+"-mark_sel")
+	  if (w.length) {
+	      w.change (setup_sch_mark_sel)
+	  } else {
+	      break
+	  }
+      }
+      $("#id__sch_mark_sel").change (changed_sch_mark_sel)
+
+      $('#id__form_reset0, #id__form_reset1').click(function(e){
+	  e.preventDefault();
+	  $(this).closest('form').get(0).reset();
+	  setup_sch_mark_sel ()
+      });
+      if (max_logs == 0) {
+	  $("#id__sch_mark_sel").prop('disabled',true)
+      }
+
+      $("#id__form_submit0, #id__form_submit1").click(function() {
+	  $(this).html(
+              `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 更新中 ...`
+	  );
+      });
+  })(jQuery);
+</script>
+{% endblock %}
