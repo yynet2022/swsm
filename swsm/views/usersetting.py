@@ -26,8 +26,8 @@ class UserSettingView(generic.UpdateView):
     def get_object(self):
         if self.request.user.is_authenticated:
             x = self.object_filter(user=self.request.user)
-            if len(x) > 0:
-                return x[0]
+            if x.exists():
+                return x.first()
             return self.model.objects.create(user=self.request.user)
         return None
 
@@ -56,8 +56,8 @@ class UserSettingView(generic.UpdateView):
                 if not obj.favorite_group_primary:
                     logger.info(" not has fg.")
                     x = FavoriteGroup.objects.filter(user=self.request.user)
-                    if len(x) > 0:
-                        f = x[0]
+                    if x.exists():
+                        f = x.first()
                     else:
                         f = FavoriteGroup.objects.create(
                             user=self.request.user,

@@ -127,8 +127,8 @@ class UtilsCalendarMixin:
             kwargs = {'user': self.request.user,
                       'date': self.target_date, }
             x = self.object_filter(**kwargs)
-            if len(x) > 0:
-                return x[0]
+            if x.exists():
+                return x.first()
             else:
                 return self.get_model()
         return None
