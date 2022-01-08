@@ -41,4 +41,6 @@ urlpatterns = [
          views.favorite_group_member_del, name='favorite_group_member_del'),
     path('userlog/',
          views.user_log, name='userlog'),
+    path('userlog/<int:page>/',
+         views.user_log, name='userlog'),
 ]

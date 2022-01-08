@@ -2,6 +2,7 @@
 from django import forms
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import PermissionDenied
 from ..apps import AppConfig
 from ..models import UserLog
@@ -46,12 +47,25 @@ def user_log(request, *args, **kwargs):
     if not request.user.is_authenticated:
         raise PermissionDenied
 
+    pnum = kwargs.get('page')
+    if pnum is None:
+        pnum = 1
     qs = UserLog.objects.filter(user=request.user) \
                         .order_by('created_at').reverse()
     UserLogFormset = forms.modelformset_factory(
         UserLog, form=UserLogMarkForm, extra=0,
     )
-    formset = UserLogFormset(request.POST or None, queryset=qs)
+
+    paginator = Paginator(qs, 50)
+    try:
+        pnum = paginator.validate_number(pnum)
+    except PageNotAnInteger:
+        pnum = 1
+    except EmptyPage:
+        pnum = paginator.num_pages
+
+    pobj = paginator.page(pnum)
+    formset = UserLogFormset(request.POST or None, queryset=pobj.object_list)
 
     if request.method == 'POST' and formset.is_valid():
         logger.info("> formset: valid: ok.")
@@ -66,7 +80,7 @@ def user_log(request, *args, **kwargs):
                 x = form.instance
                 logger.info(" Delete: %s", x)
                 x.delete()
-        return redirect(AppConfig.name + ':userlog')
+        return redirect(AppConfig.name + ':userlog', page=pnum)
     elif request.method == 'POST':  # ここも通らないハズ
         logger.error("> formset: not valid: %s" % formset.errors)
         logger.error("> formset: errors: %d" % formset.total_error_count())
@@ -74,5 +88,6 @@ def user_log(request, *args, **kwargs):
 
     context = {
         'formset': formset,
+        'page_obj': pobj,
     }
     return render(request, AppConfig.name + '/userlog.html', context)
