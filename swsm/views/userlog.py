@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from ..apps import AppConfig
 from ..models import UserLog
 
@@ -39,6 +40,37 @@ class UserLogMarkForm(UserLogForm):
         pass
 
 
+class UserLogExtraForm(forms.Form):
+    check_work_start = forms.BooleanField(
+        label="勤務開始",
+        initial=True,
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input me-2', }),
+    )
+    check_work_end = forms.BooleanField(
+        label="勤務終了",
+        initial=True,
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input me-2', }),
+    )
+    check_work_stop = forms.BooleanField(
+        label="勤務中断",
+        initial=True,
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input me-2', }),
+    )
+    check_work_restart = forms.BooleanField(
+        label="勤務再開",
+        initial=True,
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input me-2', }),
+    )
+
+
 def user_log(request, *args, **kwargs):
     logger.info("> In user_log: request=%s", request)
     # logger.info(">    args=%s", args)
@@ -50,7 +82,53 @@ def user_log(request, *args, **kwargs):
     pnum = kwargs.get('page')
     if pnum is None:
         pnum = 1
-    qs = UserLog.objects.filter(user=request.user) \
+
+    filterbits = kwargs.get('filterbits')
+    if filterbits is None:
+        filterbits = 0xff
+
+    qc = Q(user=request.user)
+
+    BIT_WORK_START = 0b000001
+    BIT_WORK_END = 0b000010
+    BIT_WORK_STOP = 0b000100
+    BIT_WORK_RESTART = 0b001000
+    extraform_initial = {
+        'check_work_start':   bool(filterbits & BIT_WORK_START),
+        'check_work_end':     bool(filterbits & BIT_WORK_END),
+        'check_work_stop':    bool(filterbits & BIT_WORK_STOP),
+        'check_work_restart': bool(filterbits & BIT_WORK_RESTART),
+    }
+    extraform = UserLogExtraForm(request.POST or None,
+                                 initial=extraform_initial)
+    if request.method == 'POST' and extraform.is_valid():
+        if extraform.cleaned_data['check_work_start']:
+            filterbits |= BIT_WORK_START
+        else:
+            filterbits &= ~BIT_WORK_START
+        if extraform.cleaned_data['check_work_end']:
+            filterbits |= BIT_WORK_END
+        else:
+            filterbits &= ~BIT_WORK_END
+        if extraform.cleaned_data['check_work_stop']:
+            filterbits |= BIT_WORK_STOP
+        else:
+            filterbits &= ~BIT_WORK_STOP
+        if extraform.cleaned_data['check_work_restart']:
+            filterbits |= BIT_WORK_RESTART
+        else:
+            filterbits &= ~BIT_WORK_RESTART
+
+    if not (filterbits & BIT_WORK_START):
+        qc &= ~Q(message="勤務開始")
+    if not (filterbits & BIT_WORK_END):
+        qc &= ~Q(message="勤務終了")
+    if not (filterbits & BIT_WORK_STOP):
+        qc &= ~Q(message="勤務中断")
+    if not (filterbits & BIT_WORK_RESTART):
+        qc &= ~Q(message="勤務再開")
+
+    qs = UserLog.objects.filter(qc) \
                         .order_by('created_at').reverse()
     UserLogFormset = forms.modelformset_factory(
         UserLog, form=UserLogMarkForm, extra=0,
@@ -80,7 +158,12 @@ def user_log(request, *args, **kwargs):
                 x = form.instance
                 logger.info(" Delete: %s", x)
                 x.delete()
-        return redirect(AppConfig.name + ':userlog', page=pnum)
+
+        # オブジェクトが削除されたのなら、pnum は (厳密には) 作成し直すべき。
+        # でも、実質的に、そんなに悪影響は無いと思うので。
+        # 動作は、多少「あれ？」と思うこともあるだろうけど。
+        return redirect(AppConfig.name + ':userlog',
+                        filterbits=filterbits, page=pnum)
     elif request.method == 'POST':  # ここも通らないハズ
         logger.error("> formset: not valid: %s" % formset.errors)
         logger.error("> formset: errors: %d" % formset.total_error_count())
@@ -88,6 +171,8 @@ def user_log(request, *args, **kwargs):
 
     context = {
         'formset': formset,
+        'extraform': extraform,
+        'filterbits': filterbits,
         'page_obj': pobj,
     }
     return render(request, AppConfig.name + '/userlog.html', context)

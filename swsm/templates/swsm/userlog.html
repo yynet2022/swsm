@@ -20,11 +20,11 @@
     {% with obj=page_obj paginator=page_obj.paginator %}
     {% if obj.has_previous %}
     <li class="page-item">
-      <a class="page-link" href="{% url 'swsm:userlog' 1 %}">
+      <a class="page-link" href="{% url 'swsm:userlog' filterbits 1 %}">
 	最初&lt;&lt; </a></li>
     <li class="page-item">
       <a class="page-link"
-	 href="{% url 'swsm:userlog' obj.previous_page_number %}">
+	 href="{% url 'swsm:userlog' filterbits obj.previous_page_number %}">
 	戻る&lt;</a></li>
     {% else %}
     <li class="page-item disabled">
@@ -47,17 +47,17 @@
     </li>
     {% else %}
     <li class="page-item">
-      <a class="page-link" href="{% url 'swsm:userlog' i %}">{{ i }}</a>
+      <a class="page-link" href="{% url 'swsm:userlog' filterbits i %}">{{ i }}</a>
     </li>
     {% endif %}
     {% endfor %}
 
     {% if obj.has_next %}
     <li class="page-item">
-      <a class="page-link" href="{% url 'swsm:userlog' obj.next_page_number %}">
+      <a class="page-link" href="{% url 'swsm:userlog' filterbits obj.next_page_number %}">
 	&gt;次へ</a></li>
     <li class="page-item">
-      <a class="page-link" href="{% url 'swsm:userlog' paginator.num_pages %}">
+      <a class="page-link" href="{% url 'swsm:userlog' filterbits paginator.num_pages %}">
 	&gt;&gt;最後</a></li>
     {% else %}
     <li class="page-item disabled">
@@ -73,6 +73,18 @@
 {% endif %}
 
 <form method="POST">
+  <div class="offset-1 d-inline-flex border border-primary p-2 my-2">
+    <span class="mx-2">表示条件:</span>
+    {{ extraform }}
+  </div>
+  <div class="w-100"></div>
+  <div class="col-auto btn-group m-1 p-1" role="group">
+    <button type="submit" id="id__form_submit0" class="btn btn-primary mx-2"
+	    name="form_submit" value="update">表示条件更新＆削除</button>
+    <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset0">
+      リセット</button>
+  </div>
+
 <div class="col-12">
   <table class="table d-inline table-sm">
   <thead>
@@ -112,7 +124,7 @@
 {% csrf_token %}
 <div class="col-auto btn-group m-1 p-1" role="group">
   <button type="submit" id="id__form_submit1" class="btn btn-primary mx-2"
-	  name="form_submit" value="del">削除</button>
+	  name="form_submit" value="del">表示条件更新＆削除</button>
   <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset1">リセット</button>
 </div>
 </form>
@@ -159,15 +171,15 @@
 	  if (nqson == 0) {
 	      w0.prop('checked', false)
 	      w0.prop('indeterminate', false)
-	      $("#id__form_submit0, #id__form_submit1").prop('disabled',true)
+	      // $("#id__form_submit0, #id__form_submit1").prop('disabled',true)
 	  } else if (nqs == nqson) {
 	      w0.prop('checked', true)
 	      w0.prop('indeterminate', false)
-	      $("#id__form_submit0, #id__form_submit1").prop('disabled',false)
+	      // $("#id__form_submit0, #id__form_submit1").prop('disabled',false)
 	  } else {
 	      w0.prop('checked', false)
 	      w0.prop('indeterminate', true)
-	      $("#id__form_submit0, #id__form_submit1").prop('disabled',false)
+	      // $("#id__form_submit0, #id__form_submit1").prop('disabled',false)
 	  }
       }
 
@@ -175,7 +187,7 @@
 	  // console.log ($("#id__sch_mark_sel").prop('checked'))
 	  // console.log ($("#id__sch_mark_sel").prop('indeterminate'))
 	  var t = $("#id__sch_mark_sel").prop('checked')
-	  $("#id__form_submit0, #id__form_submit1").prop('disabled',!t)
+	  // $("#id__form_submit0, #id__form_submit1").prop('disabled',!t)
 	  for (let i = 0; i < max_logs; i ++) {
 	      let w = $("#id_form-"+i+"-mark_sel")
 	      if (w.length) {
