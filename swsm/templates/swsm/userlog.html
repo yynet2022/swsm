@@ -7,12 +7,13 @@
 {% endblock %}
 
 {% block content %}
-<h5 class="col-auto d-flex">
+<h5 class="col-12">
   ■
   {{ user.usersetting.nickname|default:"(名前はまだ無い)" }}
   &lt;{{ user.email }}&gt; のログ
 </h5>
 
+<div class="row">
 {% if page_obj.paginator.num_pages > 1 %}
 {% load paginator_tags %}
 <nav aria-label="Page navigation">
@@ -70,71 +71,78 @@
     {% endwith %}
   </ul>
 </nav>
+<div class="w-100"></div>
 {% endif %}
 
-<form method="POST">
-  <div class="offset-1 d-inline-flex border border-primary p-2 my-2">
-    <span class="mx-2">表示条件:</span>
-    {{ extraform }}
-  </div>
-  <div class="w-100"></div>
-  <div class="col-auto btn-group m-1 p-1" role="group">
-    <button type="submit" id="id__form_submit0" class="btn btn-primary mx-2"
-	    name="form_submit" value="update">表示条件更新＆削除</button>
-    <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset0">
-      リセット</button>
-  </div>
+<div class="col-auto">
+  <form method="POST">
+    <div class="border border-primary ms-auto my-2 p-2">
+      <span class="mx-1">表示条件:</span>
+      {{ extraform }}
+    </div>
+    <div class="w-100"></div>
+    <div class="col-auto btn-group m-1 p-1" role="group">
+      <button type="submit" id="id__form_submit0" class="btn btn-primary mx-2"
+	      name="form_submit" value="update">表示条件更新＆削除</button>
+      <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset0">
+	リセット</button>
+    </div>
+    <div class="w-100"></div>
 
-<div class="col-12">
-  <table class="table d-inline table-sm">
-  <thead>
-    <tr>
-      <th scope="col" class="text-nowrap">
-	  <input type="checkbox" name="__sch_mark_sel" class="form-check-input"
-		 id="id__sch_mark_sel">
-	</th>
-      <th scope="col" class="text-nowrap">時刻</th>
-      <th scope="col" class="text-nowrap">メッセージ</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for form in formset %}
-    <tr>
-      <th scope="row">
-	{{ form.mark_sel }} {{ form.mark_sel.errors }}
-	{{ form.id }} {{ form.id.errors }}
-      </th>
-      <th scope="row">
-	{{ form.created_at }} {{ form.created_at.errors }}
-      </th>
-      <td>
-	{{ form.message }} {{ form.message.errors }}
-      </td>
-    </tr>
-    {% empty %}
-    <tr>
-      <th scope="row"></th>
-      <th scope="row">{% now "Y-n-j G:i:s" %} </th>
-      <td>ログはありせん。</td>
-    {% endfor %}
-  </tbody>
-</table>
+    <table class="table table-sm">
+      <thead>
+	<tr>
+	  <th scope="col" class="text-nowrap">
+	    <input type="checkbox" name="__sch_mark_sel" class="form-check-input"
+		   id="id__sch_mark_sel">
+	  </th>
+	  <th scope="col" class="text-nowrap">時刻</th>
+	  <th scope="col" class="text-nowrap">メッセージ</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for form in formset %}
+	<tr>
+	  <th scope="row">
+	    {{ form.mark_sel }} {{ form.mark_sel.errors }}
+	    {{ form.id }} {{ form.id.errors }}
+	  </th>
+	  <th scope="row">
+	    {{ form.created_at }} {{ form.created_at.errors }}
+	  </th>
+	  <td>
+	    {{ form.message }} {{ form.message.errors }}
+	  </td>
+	</tr>
+	{% empty %}
+	<tr>
+	  <th scope="row"></th>
+	  <th scope="row">{% now "Y-n-j G:i:s" %} </th>
+	  <td>ログはありせん。</td>
+	  {% endfor %}
+      </tbody>
+    </table>
+    <div class="w-100"></div>
+    {{ formset.management_form }}
+    {% csrf_token %}
+    <div class="col-auto btn-group m-1 p-1" role="group">
+      <button type="submit" id="id__form_submit1" class="btn btn-primary mx-2"
+	      name="form_submit" value="del">表示条件更新＆削除</button>
+      <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset1">
+	リセット</button>
+    </div>
+  </form>
 </div>
-{{ formset.management_form }}
-{% csrf_token %}
-<div class="col-auto btn-group m-1 p-1" role="group">
-  <button type="submit" id="id__form_submit1" class="btn btn-primary mx-2"
-	  name="form_submit" value="del">表示条件更新＆削除</button>
-  <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset1">リセット</button>
-</div>
-</form>
 
-<div>
+<div class="col">
+  <h5> 注意事項 </h5>
   <ul>
-    <li>チェックを入れたログを削除するこができます。</li>
+    <li>表示条件のチェックで表示項目をフィルターできます。</li>
+    <li>テーブル左のチェックを入れたログが削除されます。</li>
     <li>削除されたログは元に戻せません。</li>
     <li>およそ三ヶ月を目安に、それ以前のログは管理者側で削除させてもらうかもしれません。</li>
   </ul>
+</div>
 </div>
 {% endblock %}
 
