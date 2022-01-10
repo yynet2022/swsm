@@ -19,6 +19,36 @@ Djangoによる勤務予定表です。
 ## Requirement
 * Python 3.9.2
 * Django 3.2.9
+* uWSGI 2.0.20 (optional)
+
+## Installation
+```bash
+pip install Django
+pip install uWSGI
+```
+
+```bash
+git clone https://github.com/yynet2022/swsm.git
+cd swsm
+python manage.py easy_setup 
+```
+
+Edit `project/local_settings.py`
+
+Check `ALLOWED_HOSTS`, `DEFAULT_FROM_EMAIL`, and `EMAIL_HOST`
+
+Edit `uwsgi.ini`
+
+Check `http=0:8000`
+
+```bash
+python manage.py runserver 0:8000
+```
+or
+ 
+```bash
+uwsgi uwsgi.ini 
+```
 
 ## License
 This is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).

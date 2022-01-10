@@ -156,6 +156,6 @@ else:
 
 try:
     from .local_settings import *
-except ImportError as e:
+except Exception as e:
     import sys
     print('Warning:', e, 'skip.', file=sys.stderr)
