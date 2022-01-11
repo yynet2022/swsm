@@ -83,9 +83,7 @@ class HomeView(MonthCalendarMixin,
             return redirect(AppConfig.name + ':home')
 
         if submit == "del":
-            for x in self.object_filter(user=self.request.user, date=date):
-                logger.info("  delete: %s", x)
-                x.delete()
+            self.object_filter(user=self.request.user, date=date).delete()
 
         if submit == "add":
             sch = form.save(commit=False)

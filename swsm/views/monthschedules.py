@@ -167,20 +167,20 @@ def month_schedules(request, *args, **kwargs):
                 x.delete()
 
             if submit == "update":
+                objs = []
                 for form in formset.saved_forms:
                     q = form.instance
-                    for x in qs_org.filter(user=target_user, date=q.date):
-                        x.delete()
+                    qs_org.filter(user=target_user, date=q.date).delete()
                     q.user = target_user
                     logger.info(" Update: %s", q)
-                    q.save()
+                    objs.append(q)
+                    # q.save()
+                Schedule.objects.bulk_create(objs)
             elif submit == "delete":
                 for form in formset.saved_forms:
                     if form.cleaned_data.get('mark_sel'):
                         d = form.instance.date
-                        for x in qs_org.filter(user=target_user, date=d):
-                            logger.info(" Delete: %s", x)
-                            x.delete()
+                        qs_org.filter(user=target_user, date=d).delete()
             else:
                 logger.warning(" Unknown submit value: %s", submit)
 
