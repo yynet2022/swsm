@@ -16,10 +16,14 @@ Djangoによる勤務予定表です。
 ## Sample
 ![勤務予定表_20220108_00](https://user-images.githubusercontent.com/97294053/148630638-645ba1fc-d823-435f-97b8-d4c4a2d092c3.png)
 
-## Requirement
+## Requirements
 * Python 3.9.2
 * Django 3.2.9
 * uWSGI 2.0.20 (optional)
+* Google Chrome
+
+Currently only tested against Python 3.9.2, Django 3.2.9 and Google Chrome.
+It may be supported by other versions and browsers.
 
 ## Installation
 ```bash
