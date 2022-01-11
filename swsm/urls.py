@@ -43,4 +43,6 @@ urlpatterns = [
          views.user_log, name='userlog'),
     path('userlog/<int:filterbits>/<int:page>/',
          views.user_log, name='userlog'),
+    path('userlog/download/',
+         views.user_log_download, name='userlog_download'),
 ]

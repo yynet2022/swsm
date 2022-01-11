@@ -81,11 +81,17 @@
       {{ extraform }}
     </div>
     <div class="w-100"></div>
-    <div class="col-auto btn-group m-1 p-1" role="group">
-      <button type="submit" id="id__form_submit0" class="btn btn-primary mx-2"
-	      name="form_submit" value="update">表示条件更新＆削除</button>
-      <button type="reset" class="btn btn-secondary mx-2" id="id__form_reset0">
-	リセット</button>
+    <div class="btn-toolbar" role="toolbar">
+      <div class="btn-group m-1 p-1" role="group">
+	<button type="submit" id="id__form_submit0" class="btn btn-primary mx-2"
+		name="form_submit" value="update">表示条件更新＆削除</button>
+	<button type="reset" id="id__form_reset0"
+		class="btn btn-secondary mx-2">リセット</button>
+      </div>
+      <div class="btn-group ms-auto m-1 p-1" role="group">
+	<a class="btn btn-secondary nav-link active"
+	   href="{% url 'swsm:userlog_download' %}">CSV保存</a>
+      </div>
     </div>
     <div class="w-100"></div>
 
@@ -140,6 +146,7 @@
     <li>表示条件のチェックで表示項目をフィルターできます。</li>
     <li>テーブル左のチェックを入れたログが削除されます。</li>
     <li>削除されたログは元に戻せません。</li>
+    <li>CSV保存は、表示条件に関係なく全て出力されます。</li>
     <li>およそ三ヶ月を目安に、それ以前のログは管理者側で削除させてもらうかもしれません。</li>
   </ul>
 </div>

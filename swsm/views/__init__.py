@@ -6,7 +6,7 @@ from .userschedules import UserSchedulesView
 from .usersetting import UserSettingView
 from .workstatus import work_status
 from .favoritegroup import favorite_group_member_add, favorite_group_member_del
-from .userlog import user_log
+from .userlog import user_log, user_log_download
 
 __all__ = ['InputAddress', 'InputedAddress', 'AuthTokenEmail', 'LogoutView',
            'HomeView',
@@ -15,5 +15,5 @@ __all__ = ['InputAddress', 'InputedAddress', 'AuthTokenEmail', 'LogoutView',
            'UserSettingView',
            'work_status',
            'favorite_group_member_add', 'favorite_group_member_del',
-           'user_log',
+           'user_log', 'user_log_download',
            ]

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -7,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from ..apps import AppConfig
 from ..models import UserLog
+import csv
 
 import logging
 logger = logging.getLogger(__name__)
@@ -176,3 +178,22 @@ def user_log(request, *args, **kwargs):
         'page_obj': pobj,
     }
     return render(request, AppConfig.name + '/userlog.html', context)
+
+
+def user_log_download(request, *args, **kwargs):
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+
+    response = HttpResponse(content_type='text/csv')
+    filename = 'userlog.csv'
+    response['Content-Disposition'] = \
+        'attachment; filename={}'.format(filename)
+    writer = csv.writer(response)
+
+    header = ['ユーザ', '時刻', 'メッセージ']
+    writer.writerow(header)
+    qs = UserLog.objects.filter(user=request.user) \
+                        .order_by('created_at').reverse()
+    for q in qs:
+        writer.writerow(q.get_itemlist())
+    return response
