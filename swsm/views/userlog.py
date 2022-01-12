@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.http import HttpResponse
+from django.http import StreamingHttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -9,6 +9,7 @@ from django.db.models import Q
 from ..apps import AppConfig
 from ..models import UserLog
 import csv
+import codecs
 
 import logging
 logger = logging.getLogger(__name__)
@@ -180,20 +181,31 @@ def user_log(request, *args, **kwargs):
     return render(request, AppConfig.name + '/userlog.html', context)
 
 
+class Echo:
+    def write(self, value):
+        return value
+
+
+def iter_csv(qs, pseudo_buffer):
+    yield pseudo_buffer.write(codecs.BOM_UTF8)
+    writer = csv.writer(pseudo_buffer)
+
+    header = ['ユーザ', '時刻', 'メッセージ']
+    yield writer.writerow(header)
+    for q in qs:
+        yield writer.writerow(q.get_itemlist())
+
+
 def user_log_download(request, *args, **kwargs):
     if not request.user.is_authenticated:
         raise PermissionDenied
 
-    response = HttpResponse(content_type='text/csv')
+    qs = UserLog.objects.filter(user=request.user) \
+                        .order_by('created_at').reverse()
+
+    response = StreamingHttpResponse(iter_csv(qs, Echo()),
+                                     content_type='text/csv')
     filename = 'userlog.csv'
     response['Content-Disposition'] = \
         'attachment; filename={}'.format(filename)
-    writer = csv.writer(response)
-
-    header = ['ユーザ', '時刻', 'メッセージ']
-    writer.writerow(header)
-    qs = UserLog.objects.filter(user=request.user) \
-                        .order_by('created_at').reverse()
-    for q in qs:
-        writer.writerow(q.get_itemlist())
     return response

@@ -161,6 +161,15 @@
 		{{ fgu.member.usersetting.nickname|default:fgu.member.get_short_name }}
 	      </a>
 	    </span>
+	    <span class="ms-2 text-nowrap">
+	      <small>
+		<small>
+		  {% if fgu.member.workstatus.update_at %}
+		  ({{fgu.member.workstatus.update_at|date:"Y-n-j G:i:s"}})
+		  {% endif %}
+		</small>
+	      </small>
+	    </span>
 	  </li>
 	  {% empty %}
 	  <li class="nav-item">
