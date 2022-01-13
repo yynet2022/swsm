@@ -6,6 +6,9 @@
 なお、有効期限は {{ expire }} です。
 それ以降、この URL は無効になります。
 
+ブラウザは Google Chrome を推奨。
+少なくとも Internet Explorer (IE) は非対応です。
+
 <{{ protocol}}://{{ domain }}{% url 'swsm:authtokenemail' user.token eid %}>
 
 by 管理者＠勤務予定表 <{{ from_addr }}>
