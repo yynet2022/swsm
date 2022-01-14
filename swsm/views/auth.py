@@ -24,6 +24,18 @@ class InputAddress(generic.FormView):
     """ログインのためにメールアドレスを入力するビュー"""
     form_class = EmailForm
 
+    def get(self, request, *args, **kwargs):
+        logger.error(" In input address: error: GET.")
+        return render(self.request,
+                      AppConfig.name + '/error_and_home.html',
+                      {'error_str': 'GET request', })
+
+    def form_invalid(self, form):
+        logger.error(" In input address: error: form invalid.")
+        return render(self.request,
+                      AppConfig.name + '/error_and_home.html',
+                      {'error_str': 'form invalid', })
+
     def form_valid(self, form):
         submit = form.data.get('auth_submit', None)
         logger.debug("> form_valid: submit=%s", submit)
@@ -33,13 +45,13 @@ class InputAddress(generic.FormView):
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             user = User.objects.create_user(email=email)
+            user.is_active = False
 
         atime = timezone.now()
         token_str = "<" + user.email + ">" + str(atime) + "yy"
 
         user.access_at = atime
         user.token = hashlib.sha256(token_str.encode()).hexdigest()
-        user.is_active = False
         user.save()
         logger.debug("> user.save: %s", user)
 
