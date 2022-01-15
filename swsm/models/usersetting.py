@@ -26,6 +26,8 @@ class UserSetting(models.Model):
         models.ForeignKey(FavoriteGroup,
                           on_delete=models.SET_NULL, null=True, blank=True)
 
+    show_month_calendar = models.BooleanField('月予定の表示', default=False)
+
     def __str__(self):
         try:
             u = str(self.user.email)
@@ -37,10 +39,11 @@ class UserSetting(models.Model):
             f = "-"
         s = "UserSetting<user=%s/%s," + \
             "show_weekend=%s,rows_description=%d," + \
-            "s_time=%s,e_time=%s,fg_primary=%s>"
+            "s_time=%s,e_time=%s,fg_primary=%s,show_month=%s>"
         return s % (u, self.nickname,
                     str(self.show_weekend), self.rows_description,
-                    str(self.s_time), str(self.e_time), f)
+                    str(self.s_time), str(self.e_time), f,
+                    str(self.show_month_calendar))
 
     def get_itemlist(self):
         try:
@@ -52,4 +55,5 @@ class UserSetting(models.Model):
         except Exception:
             f = ''
         return (u, self.nickname, self.show_weekend,
-                self.rows_description, self.s_time, self.e_time, f)
+                self.rows_description, self.s_time, self.e_time, f,
+                self.show_month_calendar)

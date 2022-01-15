@@ -1,0 +1,51 @@
+
+<div class="d-flex justify-content-between">
+  <a href="{% url apptag month_prev.year month_prev.month month_prev.day %}">前月&lt;&lt;</a>
+  <span>{{ month_curr|date:"Y年n月" }}</span>
+  <a href="{% url apptag month_next.year month_next.month month_next.day %}">&gt;&gt;次月</a>
+</div>
+
+<table class="table table-sm" style="table-layout: fixed;">
+  <thead>
+    <tr>
+      {% for w in month_week_names %}
+      <th>{{ w }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for week in month_schedules %}
+    <tr>
+      {% for day,s_h in week.items %}
+      {% with s=s_h.0 h=s_h.1 %}
+      <td {% if today == day %}class="table-primary"{% endif %}>
+        <a href="{% url apptag day.year day.month day.day %}">
+	  {% if month_curr.month != day.month %}
+	  <small>{{ day.day }}</small>
+	  {% else %}
+	  {{ day.day }}
+	  {% endif %}
+	</a>{{ h }}<div class="w-100"></div>
+	<span>{{ s.get_vacation_display }}</span><div class="w-100"></div>
+	<span>
+	  {% if s.vacation != 10 %}
+	  {% if s.working == 10 or s.working == 20 %}
+	  出社 {{s.ws_time}}-{{s.we_time}}
+	  {% endif %}
+	  {% endif %}
+	</span><div class="w-100"></div>
+	<span>
+	  {% if s.vacation != 10 %}
+	  {% if s.working == 20 or s.working == 30 %}
+	  在宅 {{s.zs_time}}-{{s.ze_time}}
+	  {% endif %}
+	  {% endif %}
+	</span><div class="w-100"></div>
+	<span>{{ s.description|linebreaks }}</span>
+      </td>
+      {% endwith %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

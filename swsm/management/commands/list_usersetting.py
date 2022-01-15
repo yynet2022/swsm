@@ -11,7 +11,7 @@ class Command(MyBaseCommand):
     Model = UserSetting
 
     def do_csv_line(self, ln, commit=False):
-        u, nickname, w, r, s, e, f_name = [x.strip() for x in ln]
+        u, nickname, w, r, s, e, f_name, m = [x.strip() for x in ln]
 
         user = User.objects.get(email=u)
         show_weekend = _strtobool(w)
@@ -19,6 +19,7 @@ class Command(MyBaseCommand):
         s_time = datetime.time.fromisoformat(s)
         e_time = datetime.time.fromisoformat(e)
         favorite_group_primary = None
+        show_month_calendar = _strtobool(m)
 
         if f_name:
             try:
@@ -51,13 +52,17 @@ class Command(MyBaseCommand):
             if x.favorite_group_primary != favorite_group_primary:
                 x.favorite_group_primary = favorite_group_primary
                 changed = True
+            if x.show_month_calendar != show_month_calendar:
+                x.show_month_calendar = show_month_calendar
+                changed = True
 
             self.do_update(x, commit, changed)
         except ObjectDoesNotExist:
             x = self.Model(user=user,
                            nickname=nickname, show_weekend=show_weekend,
                            rows_description=rows_description,
-                           s_time=s_time, e_time=e_time)
+                           s_time=s_time, e_time=e_time,
+                           show_month_calendar=show_month_calendar)
             if favorite_group_primary is not None:
                 x.favorite_group_primary = favorite_group_primary
 
