@@ -9,60 +9,72 @@
 {% block content %}
 <div class="row">
   {% if form.errors %}
-  <h4>エラーがあるようです。ご確認ください。</h2>
-  <div class="border border-primary m-3">
+  <h4>エラーがあるようです。ご確認ください。</h4>
+  <div class="col-12 border border-primary m-3">
     {{ form.errors }}
   </div>
+  <div class="w-100"></div>
   {% endif %}
 
-  <form method="POST">
-    {{ form.non_field_errors }}
-    {% csrf_token %}
+  <div class="col-auto">
+    <form method="POST">
+      {{ form.non_field_errors }}
+      {% csrf_token %}
+      <table class="table table-sm">
+	<tbody>
+	  {% for field in form %}
+	  <tr>
+	    {% if field.is_hidden %}
+	    <td id="div_{{ field.id_for_label }}">
+	      {{ field }}
+	      {{ field.errors }}
+	    </td>
+	    <td></td> <td></td>
 
-    {% for field in form %}
-    <div class="form-group row" id="div_{{ field.id_for_label }}">
-      {% if field.is_hidden %}
-      <div>
-	{{ field }}
-	{{ field.errors }}
-      </div>
+	    {% elif field.field.widget.input_type == 'checkbox' %}
+	    <td colspan="2">
+	      <div class="form-check form-switch">
+		<label for="{{ field.id_for_label }}"
+		       class="form-label">{{ field.label }}</label>
+		{{ field }}
+		{{ field.errors }}
+	      </div>
+	    </td>
+	    <td>
+	      {% if field.help_text %}
+	      <span class="helptext">{{ field.help_text }}</span>
+	      {% endif %}
+	    </td>
 
-      {% elif field.field.widget.input_type == 'checkbox' %}
-      <div class="form-check form-switch m-2">
-	<label for="{{ field.id_for_label }}"
-	       class="form-label">{{ field.label }}</label>
-	{{ field }}
-	{% if field.help_text %}
-	<span class="helptext">{{ field.help_text }}</span>
-	{% endif %}
-	{{ field.errors }}
-      </div>
+	    {% else %}
+	    <td>
+	      <label for="{{ field.id_for_label }}"
+		     class="form-label">
+		{{ field.label }}
+	      </label>
+	    </td>
+	    <td>
+	      {{ field }}
+	      {{ field.errors }}
+	    </td>
+	    <td>
+	      {% if field.help_text %}
+	      <span class="helptext">{{ field.help_text }}</span>
+	      {% endif %}
+	    </td>
+	    {% endif %}
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
 
-      {% else %}
-      <div class="input-group m-2 col-6">
-	<label for="{{ field.id_for_label }}"
-	       class="col-12 col-sm-4 col-lg-2 col-form-label">
-	  {{ field.label }}
-	</label>
-	<div class="col-12 col-sm-4 col-lg-2">{{ field }}</div>
-	{% if field.help_text %}
-	<span class="helptext">{{ field.help_text }}</span>
-	{% endif %}
-	{% if field.errors %}
-	<div class="border border-primary p-2">
-	  {{ field.errors }}
-	</div>
-	{% endif %}
+      <div class="btn-group">
+	<button class="btn btn-primary text-nowrap ms-1" type="submit" name="us_submit" value="ok">登録</button>
+	<button class="btn btn-secondary text-nowrap ms-1" type="reset">リセット</button>
+	<a class="btn btn-secondary text-nowrap ms-1" href="{% url 'swsm:home' %}">キャンセル (ホームへ)</a>
       </div>
-      {% endif %}
-    </div>
-    {% endfor %}
-    <div class="btn-group">
-      <button class="btn btn-primary text-nowrap ms-1" type="submit" name="us_submit" value="ok">登録</button>
-      <button class="btn btn-secondary text-nowrap ms-1" type="reset">リセット</button>
-      <a class="btn btn-secondary text-nowrap ms-1" href="{% url 'swsm:home' %}">キャンセル (ホームへ)</a>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>
 {# コメント #}
 {% endblock %}

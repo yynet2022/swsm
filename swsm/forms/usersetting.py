@@ -33,5 +33,5 @@ class UserSettingForm(forms.ModelForm):
             'e_time': _('勤務終了時間のデフォルト値'),
             'rows_description': _('3以上、15以下'),
             'show_weekend': _('スケジュール(週)に土曜日・日曜日を表示するか'),
-            'show_month_calendar': _('予定表を月表示にするか'),
+            'show_month_calendar': _('スケジュールを月表示にするか'),
         }

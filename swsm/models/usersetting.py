@@ -26,7 +26,7 @@ class UserSetting(models.Model):
         models.ForeignKey(FavoriteGroup,
                           on_delete=models.SET_NULL, null=True, blank=True)
 
-    show_month_calendar = models.BooleanField('月予定の表示', default=False)
+    show_month_calendar = models.BooleanField('スケジュール(月)の表示', default=False)
 
     def __str__(self):
         try:
