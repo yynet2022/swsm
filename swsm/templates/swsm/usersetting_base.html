@@ -1,0 +1,42 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row flex-nowrap">
+    {% block leftmenu %}
+    <div id="side-menubar" class="col-auto overflow-auto">
+      <div class="d-flex flex-column align-items-start">
+        <span class="fs-5">設定</span>
+        <ul id="menu"
+	    class="nav nav-pills flex-column align-items-start col-12">
+	  <li class="nav-item">
+	    <a class="nav-link" aria-current="page"
+	       href="{% url 'swsm:usersetting' %}">
+	      <span class="text-nowrap">
+		基本設定
+	      </span>
+	    </a>
+	  </li>
+	  <li class="nav-item">
+	    <a class="nav-link" aria-current="page"
+	       href="#">
+	      <span class="text-nowrap">
+		お気に入り設定<small>(工事中)</small>
+	      </span>
+	    </a>
+	  </li>
+	</ul>
+      </div>
+    </div>
+    {% endblock %}
+    {% block rightcontent %}
+    {% endblock %}
+  </div>
+</div>
+{% endblock %}

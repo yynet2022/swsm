@@ -1,13 +1,8 @@
-{% extends 'swsm/base.html' %}
+{% extends 'swsm/usersetting_base.html' %}
 
-{% block menubar %}
-{% with with_workstatus=True %}
-{% include 'swsm/includes/menubar.html' %}
-{% endwith %}
-{% endblock %}
-
-{% block content %}
+{% block rightcontent %}
 <div class="row">
+  <h4>■ 基本設定</h4>
   {% if form.errors %}
   <h4>エラーがあるようです。ご確認ください。</h4>
   <div class="col-12 border border-primary m-3">
