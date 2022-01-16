@@ -4,7 +4,7 @@ from django.views import generic
 from django.contrib.auth import get_user_model
 from ..apps import AppConfig
 from ..forms import EmailForm
-from ..models import Schedule, FavoriteGroupUser
+from ..models import Schedule
 from .mixins import MonthCalendarMixin, WeekCalendarMixin, UtilsCalendarMixin
 
 import logging
@@ -33,12 +33,11 @@ class UserSchedulesView(MonthCalendarMixin,
             qdict[s.user.pk]['schedule'] = s
 
         try:
-            fg = self.request.user.usersetting.favorite_group_primary
-            fgl = FavoriteGroupUser.objects.filter(favorite_group=fg)
+            for g in self.request.user.favoritegroup_set.all():
+                for u in g.favoritegroupuser_set.all():
+                    qdict[u.member.pk]['favorite'] = 10
         except Exception:
-            fgl = []
-        for f in fgl:
-            qdict[f.member.pk]['favorite'] = 10
+            pass
 
         if self.request.user.is_authenticated:
             del qdict[self.request.user.pk]

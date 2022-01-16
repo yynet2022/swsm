@@ -123,7 +123,7 @@
       <small><small>({% now "Y/n/j G:i" %} 時点)</small></small>
     </h5>
     <small class="col-12">（○勤務中 ×勤務終了中 △中断中 ？不明）</small>
-    {% if not favorite_group.name %}
+    {% if not user.usersetting.favorite_group_primary.name %}
     <div class="col-12 d-flex justify-content-center">
       <div class="card">
 	<div class="card-body">
@@ -139,41 +139,33 @@
     </div>
     {% else %}
     <ul class="nav nav-pills flex-column align-items-left" id="menu">
+
+      {% for fvi in favorite_infos %}
       <li class="mx-3">
-	{% comment %}
-	<a class="nav-link btn-toggle px-0 mx-0 align-middle lead"
-	   href="#submenu1"
-	   data-bs-toggle="collapse"
-	   aria-expanded="true"
-	   aria-current="true">
-	  <i class="fs-4 bi-speedometer2"></i>
-	  <span>{{ favorite_group.name }}</span>
-	</a>
-	{% endcomment %}
-	<button id="id-collapse-0"
+	<button id="id-collapse-{{ forloop.counter }}"
 		class="btn btn-toggle d-flex align-items-center col-12"
 		data-bs-toggle="collapse"
-		data-bs-target="#submenu1"
+		data-bs-target="#submenu{{ forloop.counter }}"
 		aria-expanded="true"
 		aria-current="true">
-	  <span class="lead">{{ favorite_group.name }}</span>
+	  <span class="lead">{{ fvi.name }}</span>
 	</button>	
 	<ul class="collapse show nav flex-column"
-	    id="submenu1" data-bs-parent="#menu">
-	  {% for fgu in favorite_group_list %}
+	    id="submenu{{ forloop.counter }}" data-bs-parent="#menu">
+	  {% for fvm in fvi.members %}
 	  <li class="nav-item">
 	    <span class="text-nowrap">
-	      {{ fgu.member.workstatus.status_sf|default:"？" }}
+	      {{ fvm.user.workstatus.status_sf|default:"？" }}
 	      <a aria-current="page"
-		 href="{% url 'swsm:monthschedules_eid' fgu.member.get_eid month_curr.year month_curr.month %}">
-		{{ fgu.member.usersetting.nickname|default:fgu.member.get_short_name }}
+		 href="{% url 'swsm:monthschedules_eid' fvm.user.get_eid month_curr.year month_curr.month %}">
+		{{ fvm.user.usersetting.nickname|default:fvm.user.get_short_name }}
 	      </a>
 	    </span>
 	    <span class="ms-2 text-nowrap">
 	      <small>
 		<small>
-		  {% if fgu.member.workstatus.update_at %}
-		  ({{fgu.member.workstatus.update_at|date:"Y-n-j G:i:s"}})
+		  {% if fvm.user.workstatus.update_at %}
+		  ({{fvm.user.workstatus.update_at|date:"Y-n-j G:i:s"}})
 		  {% endif %}
 		</small>
 	      </small>
@@ -188,6 +180,7 @@
 	  {% endfor %}
 	</ul>
       </li>
+      {% endfor %}
     </ul>
     {% endif %}
   </div>

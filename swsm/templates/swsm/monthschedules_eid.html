@@ -30,11 +30,11 @@
 	  {% for fvi in favorite_infos %}
           <li class="col-12">
 	    {% with is_expanded=fvi.has_target_user|yesno:'true,false' %}
-	    <button id="id-collapse-0"
+	    <button id="id-collapse-{{ forloop.counter }}"
 		    class="btn btn-toggle d-flex align-items-center col-12"
 		    {{fvi.members|yesno:',disabled'}}
 		    data-bs-toggle="collapse"
-		    data-bs-target="#submenu1"
+		    data-bs-target="#submenu{{ forloop.counter }}"
 		    aria-expanded="{{ is_expanded }}"
 		    aria-current="{{ is_expanded }}">
 	      {{ fvi.name|default:"お気に入り." }}
@@ -42,7 +42,7 @@
 	    {% endwith %}
 	    {% with is_show=fvi.has_target_user|yesno:'show,' %}
             <ul class="collapse {{ is_show }} nav flex-column align-items-start"
-		id="submenu1" data-bs-parent="#menu">
+		id="submenu{{ forloop.counter }}" data-bs-parent="#menu">
 	      {% endwith %}
 	      {% for fvm in fvi.members %}
 	      <li class="nav-item">
@@ -75,10 +75,10 @@
 
           <li class="col-12">
 	    {% with is_expanded=is_target_in_favorite|yesno:'false,true' %}
-	    <button id="id-collapse-1"
+	    <button id="id-collapse-all"
 		    class="btn btn-toggle d-flex align-items-center col-12"
 		    data-bs-toggle="collapse"
-		    data-bs-target="#submenu2"
+		    data-bs-target="#submenu_all"
 		    aria-expanded="{{ is_expanded }}"
 		    aria-current="{{ is_expanded }}">
 	      全員
@@ -86,7 +86,7 @@
 	    {% endwith %}
 	    {% with is_show=is_target_in_favorite|yesno:',show' %}
             <ul class="collapse {{ is_show }} nav flex-column align-items-start"
-		id="submenu2" data-bs-parent="#menu">
+		id="submenu_all" data-bs-parent="#menu">
 	      {% endwith %}
 	      {# data-bs-parent で親を同じにしておくと、開くのは一つになる。#}
 	      {% for u in userlist %}

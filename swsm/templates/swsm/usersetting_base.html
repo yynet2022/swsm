@@ -23,14 +23,16 @@
 	      </span>
 	    </a>
 	  </li>
+	  {% if user.usersetting %}
 	  <li class="nav-item">
 	    <a class="nav-link" aria-current="page"
-	       href="#">
+	       href="{% url 'swsm:usersetting_favoritegroup' %}">
 	      <span class="text-nowrap">
-		お気に入り設定<small>(工事中)</small>
+		お気に入り設定<small>(テスト中)</small>
 	      </span>
 	    </a>
 	  </li>
+	  {% endif %}
 	</ul>
       </div>
     </div>

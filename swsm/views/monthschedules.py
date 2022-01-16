@@ -232,7 +232,8 @@ class MonthSchedulesEID(generic.FormView):
             target_user = self.get_target_user()
         fav_infos = []
         try:
-            for g in self.request.user.favoritegroup_set.all():
+            u = self.request.user
+            for g in u.favoritegroup_set.all().order_by('name'):
                 x = {'name': g.name,
                      'eid': g.get_eid(),
                      'op_eid': g.get_eid(),
@@ -242,7 +243,7 @@ class MonthSchedulesEID(generic.FormView):
                      }
 
                 try:
-                    p = self.request.user.usersetting.favorite_group_primary
+                    p = u.usersetting.favorite_group_primary
                     if g.pk == p.pk:
                         x['primary'] = True
                 except Exception:

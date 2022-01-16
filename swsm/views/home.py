@@ -25,6 +25,20 @@ class HomeView(MonthCalendarMixin,
     model = Schedule
     form_class = ScheduleForm
 
+    def get_fav_infos(self):
+        fav_infos = []
+        try:
+            u = self.request.user
+            for g in u.favoritegroup_set.all().order_by('name'):
+                x = {'name': g.name,
+                     'members': [], }
+                for u in g.favoritegroupuser_set.all():
+                    x['members'].append({'user': u.member, })
+                fav_infos.append(x)
+        except Exception:
+            pass
+        return fav_infos
+
     def get_context_data(self, **kwargs):
         logger.info("> get_context_data: obj=%s", self.object)
         logger.info("> get_context_data: user=%s", self.request.user)
@@ -63,7 +77,8 @@ class HomeView(MonthCalendarMixin,
             'userlist': ulist.exclude(is_active=False),
             'favorite_group': fg,
             'favorite_group_list': fgl,
-            })
+            'favorite_infos': self. get_fav_infos(),
+        })
         context['form'].fields['description'].widget.attrs['rows'] = \
             self.rows_description
 

@@ -33,6 +33,8 @@ urlpatterns = [
          views.LogoutView, name='logout'),
     path('usersetting/',
          views.UserSettingView.as_view(), name='usersetting'),
+    path('usersetting/favoritegroup/',
+         views.usersetting_favoritegroup, name='usersetting_favoritegroup'),
     path('workstatus/',
          views.work_status, name='workstatus'),
     path('favorite/group/member/add/',
