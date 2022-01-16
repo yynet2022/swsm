@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from ..apps import AppConfig
 from ..forms import ScheduleForm, EmailForm
-from ..models import Schedule, FavoriteGroupUser
+from ..models import Schedule
 from .mixins import MonthCalendarMixin, WeekCalendarMixin, UtilsCalendarMixin
 
 import logging
@@ -48,13 +48,6 @@ class HomeView(MonthCalendarMixin,
         else:
             ulist = User.objects.all()
 
-        try:
-            fg = self.request.user.usersetting.favorite_group_primary
-            fgl = FavoriteGroupUser.objects.filter(favorite_group=fg)
-        except Exception:
-            fg = None
-            fgl = ()
-
         def _get_month_schedules():
             for x in context['month_days']:
                 s = self.get_week_schedules(x)
@@ -75,8 +68,6 @@ class HomeView(MonthCalendarMixin,
             'apptag': AppConfig.name + ':home',
             'informations': self.informations,
             'userlist': ulist.exclude(is_active=False),
-            'favorite_group': fg,
-            'favorite_group_list': fgl,
             'favorite_infos': self. get_fav_infos(),
         })
         context['form'].fields['description'].widget.attrs['rows'] = \

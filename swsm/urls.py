@@ -31,16 +31,15 @@ urlpatterns = [
          views.AuthTokenEmail.as_view(), name='authtokenemail'),
     path('logout/',
          views.LogoutView, name='logout'),
+
     path('usersetting/',
          views.UserSettingView.as_view(), name='usersetting'),
     path('usersetting/favoritegroup/',
          views.usersetting_favoritegroup, name='usersetting_favoritegroup'),
+
     path('workstatus/',
          views.work_status, name='workstatus'),
-    path('favorite/group/member/add/',
-         views.favorite_group_member_add, name='favorite_group_member_add'),
-    path('favorite/group/member/del/',
-         views.favorite_group_member_del, name='favorite_group_member_del'),
+
     path('userlog/',
          views.user_log, name='userlog'),
     path('userlog/<int:filterbits>/<int:page>/',

@@ -5,7 +5,6 @@ from .monthschedules import month_schedules, MonthSchedulesEID
 from .userschedules import UserSchedulesView
 from .usersetting import UserSettingView, usersetting_favoritegroup
 from .workstatus import work_status
-from .favoritegroup import favorite_group_member_add, favorite_group_member_del
 from .userlog import user_log, user_log_download
 
 __all__ = ['InputAddress', 'InputedAddress', 'AuthTokenEmail', 'LogoutView',
