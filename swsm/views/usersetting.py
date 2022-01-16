@@ -3,7 +3,7 @@ from django import forms
 from django.shortcuts import render, redirect
 from django.views import generic
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from ..apps import AppConfig
 from ..forms import UserSettingForm
 from ..models import UserSetting, FavoriteGroup
@@ -81,6 +81,24 @@ class FavoriteGroupForm(forms.ModelForm):
         }
 
 
+class FavoriteGroupBaseModelFormSet(forms.BaseModelFormSet):
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+        names = []
+        for form in self.forms:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+            name = form.cleaned_data.get('name')
+            if name is None:
+                continue
+            if name in names:
+                err = '同じ名前では作成できません。: ' + name
+                raise ValidationError(err)
+            names.append(name)
+
+
 def usersetting_favoritegroup(request, *args, **kwargs):
     logger.info("> In usersetting_favoritegroup: request=%s", request)
     if not request.user.is_authenticated:
@@ -92,7 +110,9 @@ def usersetting_favoritegroup(request, *args, **kwargs):
 
     qs_org = request.user.favoritegroup_set.all().order_by('name')
     FavoriteGroupFormSet = forms.modelformset_factory(
-        FavoriteGroup, form=FavoriteGroupForm, extra=5, can_delete=True,
+        model=FavoriteGroup, form=FavoriteGroupForm,
+        formset=FavoriteGroupBaseModelFormSet,
+        extra=5, can_delete=True,
     )
     formset = FavoriteGroupFormSet(request.POST or None, queryset=qs_org)
     if request.method == 'POST' and formset.is_valid():
