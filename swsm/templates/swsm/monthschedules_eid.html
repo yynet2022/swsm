@@ -27,29 +27,30 @@
 	  </li>
 	  {% endif %}
 
+	  {% for fvi in favorite_infos %}
           <li class="col-12">
-	    {% with is_expanded=is_target_in_favorite|yesno:'true,false' %}
+	    {% with is_expanded=fvi.has_target_user|yesno:'true,false' %}
 	    <button id="id-collapse-0"
 		    class="btn btn-toggle d-flex align-items-center col-12"
-		    {{favorite_group_list|yesno:',disabled'}}
+		    {{fvi.members|yesno:',disabled'}}
 		    data-bs-toggle="collapse"
 		    data-bs-target="#submenu1"
 		    aria-expanded="{{ is_expanded }}"
 		    aria-current="{{ is_expanded }}">
-	      {{ favorite_group.name|default:"お気に入り." }}
+	      {{ fvi.name|default:"お気に入り." }}
             </button>
 	    {% endwith %}
-	    {% with is_show=is_target_in_favorite|yesno:'show,' %}
+	    {% with is_show=fvi.has_target_user|yesno:'show,' %}
             <ul class="collapse {{ is_show }} nav flex-column align-items-start"
 		id="submenu1" data-bs-parent="#menu">
 	      {% endwith %}
-	      {% for fgu in favorite_group_list %}
+	      {% for fvm in fvi.members %}
 	      <li class="nav-item">
 		<a class="nav-link" aria-current="page"
-		   href="{% url 'swsm:monthschedules_eid' fgu.member.get_eid date.year date.month %}">
+		   href="{% url 'swsm:monthschedules_eid' fvm.user.get_eid date.year date.month %}">
 		  <span class="text-nowrap">
 		    {# {{ forloop.counter }} #}
-		    {{ fgu.member.usersetting.nickname|default:fgu.member.get_short_name }}
+		    {{ fvm.user.usersetting.nickname|default:fvm.user.get_short_name }}
 		  </span>
 		</a>
 	      </li>
@@ -70,6 +71,7 @@
 	      {% endcomment %}
             </ul>
           </li>
+	  {% endfor %}
 
           <li class="col-12">
 	    {% with is_expanded=is_target_in_favorite|yesno:'false,true' %}
@@ -137,39 +139,20 @@
 	{% elif user.is_authenticated and target_user.pk != user.pk %}
 	{# 自分じゃ無い場合 #}
 
-	{% if favorite_group_user.get_eid and favorite_group.name %}
-	{# 対象ユーザが既に「お気に入り」に入っている場合、削除へのリンクを #}
-	<form method="POST"
-	      action="{% url 'swsm:favorite_group_member_del' %}">
+	{% if form %}
+	<form method="POST">
 	  {% csrf_token %}
-	  <input name="next" type="hidden" value="{{ request.path }}">
-	  <input name="fgu_eid" type="hidden"
-		 value="{{ favorite_group_user.get_eid }}">
-          <button type="submit" class="btn text-nowrap mx-2"
-		  name="favorite_group" value="del">
-	    <small><small>
-		{{ favorite_group.name }}から削除
-	    </small></small>
-	  </button>
+	  <div class="form-group input-group">
+	    {% for field in form %}
+	    {{ field }}
+	    {% endfor %}
+	    <button type="submit" class="btn btn-primary btn-sm"
+		    name="submit" value="update" id="id__form_submit">
+	      実行</button>
+	  </div>
 	</form>
-
-	{% elif favorite_group.get_eid and target_user.get_eid %}
-	{# 「お気に入り」に、追加へのリンクを #}
-	<form method="POST"
-	      action="{% url 'swsm:favorite_group_member_add' %}">
-	  {% csrf_token %}
-	  <input name="next" type="hidden" value="{{ request.path }}">
-	  <input name="fg_eid" type="hidden" value="{{ favorite_group.get_eid }}">
-	  <input name="mm_eid" type="hidden" value="{{ target_user.get_eid }}">
-          <button type="submit" class="btn text-nowrap mx-2"
-		  name="favorite_group" value="add">
-	    <small><small>
-		{{ favorite_group.name }}に追加
-	    </small></small>
-	  </button>
-	</form>
-
 	{% endif %}
+
 	{% endif %}
       </h5>
       <hr>

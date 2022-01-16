@@ -5,7 +5,7 @@ from django.views import generic
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from ..apps import AppConfig
-from ..models import Schedule, Holiday, FavoriteGroupUser
+from ..models import Schedule, Holiday, FavoriteGroup, FavoriteGroupUser
 from ..forms import ScheduleForm, EmailForm
 from .mixins import MonthCalendarMixin, WeekCalendarMixin, UtilsCalendarMixin
 import datetime
@@ -224,29 +224,132 @@ def month_schedules(request, *args, **kwargs):
     return render(request, AppConfig.name + '/monthschedules.html', context)
 
 
-class MonthSchedulesEID(generic.TemplateView):
+class MonthSchedulesEID(generic.FormView):
     template_name = AppConfig.name + '/monthschedules_eid.html'
+
+    def get_fav_infos(self, target_user=None):
+        if target_user is None:
+            target_user = self.get_target_user()
+        fav_infos = []
+        try:
+            for g in self.request.user.favoritegroup_set.all():
+                x = {'name': g.name,
+                     'eid': g.get_eid(),
+                     'op_eid': g.get_eid(),
+                     'primary': False,
+                     'has_target_user': False,
+                     'members': [],
+                     }
+
+                try:
+                    p = self.request.user.usersetting.favorite_group_primary
+                    if g.pk == p.pk:
+                        x['primary'] = True
+                except Exception:
+                    pass
+
+                for u in g.favoritegroupuser_set.all():
+                    p = {'user': u.member,
+                         'eid': u.get_eid(),
+                         }
+                    if u.member.pk == target_user.pk:
+                        x['has_target_user'] = True
+                        x['op_eid'] = u.get_eid()
+                    x['members'].append(p)
+                fav_infos.append(x)
+                # print(x)
+        except Exception:
+            # print(type(e), '::', str(e))
+            # ex)
+            # <class 'AttributeError'> ::
+            #    'AnonymousUser' object has no attribute 'favoritegroup_set'
+            pass
+        return fav_infos
+
+    def get_form(self):
+        fav_infos = self.get_fav_infos()
+        choices = []
+        for x in fav_infos:
+            if x['has_target_user']:
+                choices.append(('del-'+x['op_eid'], x['name']+'から削除'))
+            else:
+                choices.append(('add-'+x['op_eid'], x['name']+'に追加'))
+
+        if len(choices) > 0:
+            class _ExtraForm(forms.Form):
+                choice = forms.ChoiceField(
+                    label="お気に操作",
+                    choices=choices,
+                    required=True,
+                    widget=forms.Select(
+                        attrs={'class': 'form-select', }),
+                )
+            return _ExtraForm(self.request.POST or None)
+        return None
+
+    def get_target_user(self):
+        try:
+            eid = pk = None
+
+            eid = self.kwargs.get('eid')
+            logger.info("> eid: %s", eid)
+
+            pk = base64.b64decode(eid).decode().replace('z', '-')
+            logger.info("> pk: %s", pk)
+
+            return User.objects.get(pk=pk)
+        except Exception as e:
+            logger.error("MonthSchedulesEID.get_target_user:")
+            logger.error(" Exception: %s", str(e))
+            logger.error(" pk: %s", pk)
+            logger.error(" eid: %s", eid)
+            return self.request.user
+
+    def form_invalid(self, form):
+        logger.error("MonthSchedulesEID.form_invalid: %s", form.errors)
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied
+
+        target_user = self.get_target_user()
+        if self.request.user.pk != target_user.pk:
+            choice = form.cleaned_data.get('choice', None)
+            try:
+                if choice.startswith('add-'):
+                    x, eid = choice.split('-')
+
+                    pk = base64.b64decode(eid).decode().replace('z', '-')
+                    fg = FavoriteGroup.objects.get(pk=pk)
+
+                    x = FavoriteGroupUser.objects.create(
+                        favorite_group=fg, member=target_user)
+                    logger.info("Create: %s", x)
+                elif choice.startswith('del-'):
+                    x, eid = choice.split('-')
+
+                    pk = base64.b64decode(eid).decode().replace('z', '-')
+                    fg = FavoriteGroupUser.objects.get(pk=pk)
+                    logger.info("Delete: %s", fg)
+                    fg.delete()
+            except Exception as e:
+                logger.error("MonthSchedulesEID.form_valid:")
+                logger.error(" :%s", type(e))
+                logger.error(" :%s", str(e))
+
+        ct = CalendarTools(self.request, *self.args, **self.kwargs)
+        target_date = ct.target_date
+        return redirect(AppConfig.name + ':monthschedules_eid',
+                        eid=target_user.get_eid(),
+                        year=target_date.year, month=target_date.month)
 
     def get_context_data(self, **kwargs):
         logger.info("> In MonthSchedulesEID: request=%s", self.request)
         logger.info(">    kwargs=%s", kwargs)
         logger.info(">    self.kwargs=%s", self.kwargs)
 
-        try:
-            eid = pk = None
-
-            eid = kwargs.get('eid')
-            logger.info("> eid: %s", eid)
-
-            pk = base64.b64decode(eid).decode().replace('z', '-')
-            logger.info("> pk: %s", pk)
-
-            target_user = User.objects.get(pk=pk)
-        except Exception as e:
-            logger.error(" Exception: %s", str(e))
-            logger.error(" pk: %s", pk)
-            logger.error(" eid: %s", eid)
-            target_user = self.request.user
+        target_user = self.get_target_user()
 
         ct = CalendarTools(self.request, *self.args, **self.kwargs)
         target_date = ct.target_date
@@ -294,19 +397,12 @@ class MonthSchedulesEID(generic.TemplateView):
         else:
             ulist = User.objects.all()
 
-        fg = fgu = None
-        fgl = ()
-        try:
-            fg = self.request.user.usersetting.favorite_group_primary
-            fgl = FavoriteGroupUser.objects.filter(favorite_group=fg)
-            fgu = FavoriteGroupUser.objects.get(favorite_group=fg,
-                                                member=target_user)
-        except Exception:
-            pass
+        fav_infos = self.get_fav_infos(target_user)
 
         is_target_in_favorite = False
-        if (len(fgl) > 0 and target_user.pk == self.request.user.pk) or \
-           target_user in [x.member for x in fgl]:
+        if (sum(len(x['members']) for x in fav_infos) > 0 and
+            target_user.pk == self.request.user.pk) or (
+                True in [x['has_target_user'] for x in fav_infos]):
             is_target_in_favorite = True
 
         self.extra_context = ct.get_context_data()
@@ -324,9 +420,7 @@ class MonthSchedulesEID(generic.TemplateView):
             'data': data,
             'userlist': ulist.exclude(is_active=False),
             'userform': EmailForm(),
-            'favorite_group': fg,
-            'favorite_group_list': fgl,
-            'favorite_group_user': fgu,
             'is_target_in_favorite': is_target_in_favorite,
+            'favorite_infos': fav_infos,
         })
         return super().get_context_data(**kwargs)
