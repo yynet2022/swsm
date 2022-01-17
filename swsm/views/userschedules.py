@@ -85,6 +85,12 @@ class UserSchedulesView(MonthCalendarMixin,
             if key == 'nr' or key == 'vr' or key == 'wr' or key == 'fr':
                 qlist.reverse()
 
+        def _get_month_schedules():
+            for x in context['month_days']:
+                s = self.get_week_schedules(x)
+                h = self.get_week_holidays(x)
+                yield {y: (s[y], h[y]) for y in x}
+
         context = super().get_context_data(**kwargs)
         context.update(
             self.get_week_calendar(self.target_date, self.show_weekend))
@@ -94,6 +100,7 @@ class UserSchedulesView(MonthCalendarMixin,
             'date': self.target_date,
             'week_schedules': self.get_week_schedules(context['week_days']),
             'week_holidays': self.get_week_holidays(context['week_days']),
+            'month_schedules': _get_month_schedules(),
             'userform': EmailForm(),
             'qlist': qlist,
             'apptag': AppConfig.name + ':userschedules',

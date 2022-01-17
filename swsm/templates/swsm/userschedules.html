@@ -7,6 +7,13 @@
 {% endblock %}
 
 {% block content %}
+{% if user.usersetting.show_month_calendar %}
+<div class="row">
+  <div class="col-12">
+    {% include 'swsm/includes/month_and_schedules.html' %}
+  </div>
+</div>
+{% else %}
 <div class="row">
   <div class="col-12 col-md-3">
     {% include 'swsm/includes/month.html' %}
@@ -15,6 +22,7 @@
     {% include 'swsm/includes/week.html' %}
   </div>
 </div>
+{% endif %}
 
 <hr>
 <div class="row">
@@ -61,7 +69,7 @@
 	{{ q.favorite|yesno:"★,☆" }}
       </th>
       <th>
-      {{ q.user.workstatus.status_sf|default:"？" }}
+	{{ q.user.workstatus.status_sf|default:"？" }}
       </th>
       <th>
 	{% if not q.schedule %}
