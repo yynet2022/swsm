@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.utils import timezone
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
 from ..apps import AppConfig
 from ..models import WorkStatus, UserLog
 
@@ -32,6 +36,7 @@ def work_status(request, *args, **kwargs):
             except Exception:
                 workstatus = WorkStatus.objects.create(user=request.user)
 
+            title = None
             if submit == "in":
                 logger.info("> workstatus to IN")
                 ws = workstatus.status
@@ -39,31 +44,59 @@ def work_status(request, *args, **kwargs):
                 workstatus.update_at = timezone.now()
                 workstatus.save()
                 if ws == 20:
-                    UserLog.objects.create(user=request.user,
-                                           message="勤務再開")
+                    title = "勤務再開"
                 else:
-                    UserLog.objects.create(user=request.user,
-                                           message="勤務開始")
+                    title = "勤務開始"
+
             elif submit == "stop":
                 logger.info("> workstatus to STOP")
                 workstatus.status = 20
                 workstatus.update_at = timezone.now()
                 workstatus.save()
-                UserLog.objects.create(user=request.user,
-                                       message="勤務中断")
+                title = "勤務中断"
+
             elif submit == "out":
                 logger.info("> workstatus to OUT")
                 workstatus.status = 0
                 workstatus.update_at = timezone.now()
                 workstatus.save()
-                UserLog.objects.create(user=request.user,
-                                       message="勤務終了")
+                title = "勤務終了"
 
-    """
-    context = {
-        'today': datetime.date.today(),
-    }
-    """
+            if title is not None:
+                UserLog.objects.create(user=request.user,
+                                       message=title)
+
+                current_site = get_current_site(request)
+                domain = current_site.domain
+                myname = request.user.email
+                try:
+                    myname = request.user.usersetting.nickname
+                except Exception:
+                    pass
+                context = {
+                    'protocol': request.scheme,
+                    'domain': domain,
+                    'title': title,
+                    'name': myname,
+                    'from_addr': settings.DEFAULT_FROM_EMAIL,
+                    'REMOTE_ADDR': request.META.get('REMOTE_ADDR'),
+                }
+                try:
+                    toaddr = [x.recipient for x in request.user.worknotificationrecipient_set.all()]
+                    print(toaddr)
+                    subject = render_to_string(
+                        AppConfig.name + '/mail/wnr_subject.txt',
+                        context).strip()
+                    message = render_to_string(
+                        AppConfig.name + '/mail/wnr_message.txt', context)
+                    logger.info("> message:[%s]", message)
+                    send_mail(subject, message, request.user.email, toaddr)
+                except Exception as e:
+                    logger.error(" In work_status: error: %s", str(e))
+                    return render(request,
+                                  AppConfig.name + '/error_wnrmail.html',
+                                  {'error_str': str(e), })
+
     # print(request.get_full_path())
     # print(request.META.get('HTTP_REFERER'))
     # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

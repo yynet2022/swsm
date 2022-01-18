@@ -1,0 +1,24 @@
+{% extends 'swsm/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="card">
+    <h1 class="card-header">メール送信にエラーが発生しました……</h1>
+    <div class="card-body">
+      <h5 class="card-title">エラーメッセージ</h5>
+      <p class="card-text">
+	{{ error_str }}
+      </p>
+      <p class="card-text">
+	送信先アドレスを確認してみてください。<br />
+	それでもダメな場合は上記エラーメッセージを添えて、<br />
+	管理者までご相談ください。
+      </p>
+      <p>
+	なお、勤務状態の変更自体は成功しているハズです。(たぶん)
+      </p>
+      <a class="btn btn-primary m-2" href="{% url 'swsm:home' %}" role="button">ホームへ</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

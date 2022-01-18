@@ -1,0 +1,8 @@
+宛先各位
+{{name}} です。
+{{title}} します。
+
+---
+勤務予定表 <{{ protocol }}://{{ domain }}{% url 'swsm:home' %}> より送信。
+問い合わせ先: 管理者＠勤務予定表 <{{ from_addr }}>
+# remote_addr: {{ REMOTE_ADDR }}

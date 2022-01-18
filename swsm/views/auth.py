@@ -67,12 +67,13 @@ class InputAddress(generic.FormView):
             'expire': str(timezone.localtime(expire)),
             'user': user,
             'from_addr': settings.DEFAULT_FROM_EMAIL,
+            'REMOTE_ADDR': self.request.META.get('REMOTE_ADDR'),
         }
         try:
             subject = render_to_string(
-                AppConfig.name + '/mail/subject.txt', context).strip()
+                AppConfig.name + '/mail/login_subject.txt', context).strip()
             message = render_to_string(
-                AppConfig.name + '/mail/message.txt', context)
+                AppConfig.name + '/mail/login_message.txt', context)
             # logger.info("> message:[%s]", message)
             user.email_user(subject=subject, message=message)
         except Exception as e:

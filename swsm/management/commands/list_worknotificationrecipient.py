@@ -2,7 +2,6 @@
 from ..base import MyBaseCommand, ObjectDoesNotExist, _strtobool
 from ...models import WorkNotificationRecipient
 from django.contrib.auth import get_user_model
-import sys
 
 User = get_user_model()
 
