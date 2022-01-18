@@ -62,9 +62,21 @@ def work_status(request, *args, **kwargs):
                 workstatus.save()
                 title = "勤務終了"
 
+            to_addr = []
             if title is not None:
                 UserLog.objects.create(user=request.user,
                                        message=title)
+
+                try:
+                    to_addr = [
+                        x.recipient for x in
+                        request.user.worknotificationrecipient_set.all()]
+                except Exception:
+                    pass
+
+            if title is not None and len(to_addr) > 0:
+                if request.user.email not in to_addr:
+                    to_addr.append(request.user.email)
 
                 current_site = get_current_site(request)
                 domain = current_site.domain
@@ -82,15 +94,13 @@ def work_status(request, *args, **kwargs):
                     'REMOTE_ADDR': request.META.get('REMOTE_ADDR'),
                 }
                 try:
-                    toaddr = [x.recipient for x in request.user.worknotificationrecipient_set.all()]
-                    print(toaddr)
                     subject = render_to_string(
                         AppConfig.name + '/mail/wnr_subject.txt',
                         context).strip()
                     message = render_to_string(
                         AppConfig.name + '/mail/wnr_message.txt', context)
                     logger.info("> message:[%s]", message)
-                    send_mail(subject, message, request.user.email, toaddr)
+                    send_mail(subject, message, request.user.email, to_addr)
                 except Exception as e:
                     logger.error(" In work_status: error: %s", str(e))
                     return render(request,
