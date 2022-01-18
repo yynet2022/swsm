@@ -41,6 +41,7 @@ class UserSettingView(generic.UpdateView):
 
         context = super().get_context_data(**kwargs)
         logger.info("< us.get_context_data: ", context)
+        context['usersetting_leftmenuitem_1'] = 'active'
         return context
 
     def form_valid(self, form):
@@ -153,6 +154,7 @@ def usersetting_favoritegroup(request, *args, **kwargs):
 
     context = {
         'formset': formset,
+        'usersetting_leftmenuitem_2': 'active',
     }
     return render(request,
                   AppConfig.name + '/usersetting_favoritegroup.html', context)

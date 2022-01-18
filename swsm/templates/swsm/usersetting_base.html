@@ -15,21 +15,25 @@
         <span class="fs-5">設定</span>
         <ul id="menu"
 	    class="nav nav-pills flex-column align-items-start col-12">
-	  <li class="nav-item">
-	    <a class="nav-link" aria-current="page"
+	  <li class="nav-item text-nowrap col-12">
+	    <a class="nav-link {{ usersetting_leftmenuitem_1 }}"
+	       aria-current="page"
 	       href="{% url 'swsm:usersetting' %}">
-	      <span class="text-nowrap">
-		基本設定
-	      </span>
+	      <div class="d-flex justify-content-between">
+		<span>基本設定</span>
+		<span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+	      </div>
 	    </a>
 	  </li>
 	  {% if user.usersetting %}
-	  <li class="nav-item">
-	    <a class="nav-link" aria-current="page"
+	  <li class="nav-item text-nowrap col-12">
+	    <a class="nav-link {{ usersetting_leftmenuitem_2 }}"
+	       aria-current="page"
 	       href="{% url 'swsm:usersetting_favoritegroup' %}">
-	      <span class="text-nowrap">
-		お気に入り設定
-	      </span>
+	      <div class="d-flex justify-content-between">
+		<span>お気に入り設定</span>
+		<span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+	      </div>
 	    </a>
 	  </li>
 	  {% endif %}
