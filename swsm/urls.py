@@ -36,6 +36,9 @@ urlpatterns = [
          views.UserSettingView.as_view(), name='usersetting'),
     path('usersetting/favoritegroup/',
          views.usersetting_favoritegroup, name='usersetting_favoritegroup'),
+    path('usersetting/worknotificationrecipient/',
+         views.usersetting_worknotificationrecipient,
+         name='usersetting_worknotificationrecipient'),
 
     path('workstatus/',
          views.work_status, name='workstatus'),

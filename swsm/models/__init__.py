@@ -7,6 +7,7 @@ from .usersetting import UserSetting
 from .workstatus import WorkStatus
 from .favoritegroup import FavoriteGroup, FavoriteGroupUser
 from .userlog import UserLog
+from .worknotificationrecipient import WorkNotificationRecipient
 
 __all__ = ['DEFAULT_S_TIME', 'DEFAULT_E_TIME',
            'Schedule',
@@ -16,4 +17,5 @@ __all__ = ['DEFAULT_S_TIME', 'DEFAULT_E_TIME',
            'WorkStatus',
            'FavoriteGroup', 'FavoriteGroupUser',
            'UserLog',
+           'WorkNotificationRecipient',
            ]

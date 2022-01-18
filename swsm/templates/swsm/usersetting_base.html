@@ -25,6 +25,7 @@
 	      </div>
 	    </a>
 	  </li>
+
 	  {% if user.usersetting %}
 	  <li class="nav-item text-nowrap col-12">
 	    <a class="nav-link {{ usersetting_leftmenuitem_2 }}"
@@ -37,6 +38,20 @@
 	    </a>
 	  </li>
 	  {% endif %}
+
+	  {% if user.usersetting %}
+	  <li class="nav-item text-nowrap col-12">
+	    <a class="nav-link {{ usersetting_leftmenuitem_3 }}"
+	       aria-current="page"
+	       href="{% url 'swsm:usersetting_worknotificationrecipient' %}">
+	      <div class="d-flex justify-content-between">
+		<span>勤務通知先設定</span>
+		<span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+	      </div>
+	    </a>
+	  </li>
+	  {% endif %}
+
 	</ul>
       </div>
     </div>

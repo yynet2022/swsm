@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from ..apps import AppConfig
 from ..forms import UserSettingForm
-from ..models import UserSetting, FavoriteGroup
+from ..models import UserSetting, FavoriteGroup, WorkNotificationRecipient
 
 import logging
 logger = logging.getLogger(__name__)
@@ -158,3 +158,90 @@ def usersetting_favoritegroup(request, *args, **kwargs):
     }
     return render(request,
                   AppConfig.name + '/usersetting_favoritegroup.html', context)
+
+
+class WorkNotificationRecipientForm(forms.ModelForm):
+    class Meta:
+        model = WorkNotificationRecipient
+        fields = ('recipient', )
+        widgets = {
+            'recipient': forms.EmailInput(
+                attrs={'class': 'form-control',
+                       'autocomplete': 'email',
+                       'placeholder': 'メールアドレス',
+                       }),
+        }
+
+
+class WorkNotificationRecipientBaseModelFormSet(forms.BaseModelFormSet):
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+        recipients = []
+        for form in self.forms:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+            recipient = form.cleaned_data.get('recipient')
+            if recipient is None:
+                continue
+            if recipient in recipients:
+                err = '同じメアドでは作成できません。: ' + recipient
+                raise ValidationError(err)
+            recipients.append(recipient)
+
+
+def usersetting_worknotificationrecipient(request, *args, **kwargs):
+    logger.info("> In usersetting_w.n.r: request=%s", request)
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+
+    if not UserSetting.objects.filter(user=request.user).exists():
+        # もし万が一作成されてなかったら、強制的に作成する。
+        UserSetting.objects.create(user=request.user)
+
+    qs_org = request.user.worknotificationrecipient_set.all() \
+                                                       .order_by('recipient')
+    WorkNotificationRecipientFormSet = forms.modelformset_factory(
+        model=WorkNotificationRecipient,
+        form=WorkNotificationRecipientForm,
+        formset=WorkNotificationRecipientBaseModelFormSet,
+        extra=5, can_delete=True,
+    )
+    formset = WorkNotificationRecipientFormSet(
+        request.POST or None, queryset=qs_org)
+    if request.method == 'POST' and formset.is_valid():
+        logger.info("> formset: valid: ok.")
+        formset.save(commit=False)
+
+        for x in formset.deleted_objects:
+            logger.info(" Delete: %s", x)
+            x.delete()
+
+        for form in formset.saved_forms:
+            q = form.instance
+            q.user = request.user
+            logger.info(" Update: %s", q)
+            try:
+                q.save()
+                # そんなに多くないだろうから bulk_create() は使わない。
+                # 一旦消去してから作り直すことをすると、
+                #  ... 別に構わない、かな？
+            except Exception as e:
+                logger.error("save(): %s: %s", type(e), str(e))
+
+        return redirect(AppConfig.name +
+                        ':usersetting_worknotificationrecipient')
+
+    elif request.method == 'POST':
+        logger.error("usersetting_worknotificationrecipient:")
+        logger.error("formset: %s", str(formset))
+
+    context = {
+        'formset': formset,
+        'usersetting_leftmenuitem_3': 'active',
+    }
+    return render(
+        request,
+        AppConfig.name + '/usersetting_worknotificationrecipient.html',
+        context)
