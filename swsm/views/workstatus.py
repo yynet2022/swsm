@@ -7,6 +7,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from ..apps import AppConfig
 from ..models import WorkStatus, UserLog
+import datetime
 
 import logging
 logger = logging.getLogger(__name__)
@@ -78,6 +79,35 @@ def work_status(request, *args, **kwargs):
                 if request.user.email not in to_addr:
                     to_addr.append(request.user.email)
 
+                schstr = '本日 (%s) の予定:\n' % datetime.date.today()
+                try:
+                    s = request.user.schedule_set \
+                                    .get(date=datetime.date.today())
+                    q = ''
+                    p = '  '
+                    v = s.vacation_f()
+                    if v:
+                        q += p + v + '\n'
+                    w = s.working_f()
+                    if w:
+                        q += p + w + '\n'
+                    ws = s.ws_time_f()
+                    we = s.we_time_f()
+                    if ws and we:
+                        q += p + '出社 ' + ws.strftime('%H:%M') + \
+                            ' - ' + we.strftime('%H:%M') + '\n'
+                    zs = s.zs_time_f()
+                    ze = s.ze_time_f()
+                    if zs and ze:
+                        q += p + '在宅 ' + zs.strftime('%H:%M') + \
+                            ' - ' + ze.strftime('%H:%M') + '\n'
+                    dc = s.description
+                    if dc:
+                        q += p + dc + '\n'
+                    schstr += q
+                except Exception:
+                    schstr += '  (登録されていません)\n'
+
                 current_site = get_current_site(request)
                 domain = current_site.domain
                 myname = request.user.email
@@ -90,6 +120,7 @@ def work_status(request, *args, **kwargs):
                     'domain': domain,
                     'title': title,
                     'name': myname,
+                    'schstr': schstr,
                     'from_addr': settings.DEFAULT_FROM_EMAIL,
                     'REMOTE_ADDR': request.META.get('REMOTE_ADDR'),
                 }
