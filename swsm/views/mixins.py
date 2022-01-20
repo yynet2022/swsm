@@ -167,38 +167,30 @@ class UtilsCalendarMixin:
     @property
     def show_weekend(self):
         try:
-            x = UserSetting.objects.get(user=self.request.user)
-            return x.show_weekend
+            return self.request.user.usersetting.show_weekend
         except Exception:
-            pass
-        return True
+            return True
 
     @property
     def rows_description(self):
         try:
-            x = UserSetting.objects.get(user=self.request.user)
-            return x.rows_description
+            return self.request.user.usersetting.rows_description
         except Exception:
-            pass
-        return 5
+            return 5
 
     @property
     def user_s_time(self):
         try:
-            x = UserSetting.objects.get(user=self.request.user)
-            return x.s_time
+            return self.request.user.usersetting.s_time
         except Exception:
-            pass
-        return DEFAULT_S_TIME
+            return DEFAULT_S_TIME
 
     @property
     def user_e_time(self):
         try:
-            x = UserSetting.objects.get(user=self.request.user)
-            return x.e_time
+            return self.request.user.usersetting.e_time
         except Exception:
-            pass
-        return DEFAULT_E_TIME
+            return DEFAULT_E_TIME
 
     @property
     def informations(self):
