@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from ..apps import AppConfig
 from ..models import WorkStatus, UserLog
 import datetime
+from textwrap import indent
 
 import logging
 logger = logging.getLogger(__name__)
@@ -84,27 +85,26 @@ def work_status(request, *args, **kwargs):
                     s = request.user.schedule_set \
                                     .get(date=datetime.date.today())
                     q = ''
-                    p = '  '
                     v = s.vacation_f()
                     if v:
-                        q += p + v + '\n'
+                        q += v + '\n'
                     w = s.working_f()
                     if w:
-                        q += p + w + '\n'
+                        q += w + '\n'
                     ws = s.ws_time_f()
                     we = s.we_time_f()
                     if ws and we:
-                        q += p + '出社 ' + ws.strftime('%H:%M') + \
+                        q += '出社 ' + ws.strftime('%H:%M') + \
                             ' - ' + we.strftime('%H:%M') + '\n'
                     zs = s.zs_time_f()
                     ze = s.ze_time_f()
                     if zs and ze:
-                        q += p + '在宅 ' + zs.strftime('%H:%M') + \
+                        q += '在宅 ' + zs.strftime('%H:%M') + \
                             ' - ' + ze.strftime('%H:%M') + '\n'
                     dc = s.description
                     if dc:
-                        q += p + dc + '\n'
-                    schstr += q
+                        q += dc + '\n'
+                    schstr += indent(q, '  ')
                 except Exception:
                     schstr += '  (登録されていません)\n'
 
