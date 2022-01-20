@@ -9,6 +9,7 @@ for c in list_user \
 	     list_schedule \
 	     list_favoritegroupuser \
 	     list_usersetting \
+	     list_worknotificationrecipient \
 	     list_userlog
 do
     echo "$c"
