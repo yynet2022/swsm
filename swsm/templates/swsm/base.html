@@ -12,6 +12,19 @@
   </head>
   <body>
 
+    {% if request.META.HTTP_USER_AGENT %}
+    {% if "MSIE" in request.META.HTTP_USER_AGENT or "Trident" in request.META.HTTP_USER_AGENT %}
+    <h1>お知らせ</h1>
+    <div>
+      このサイトは Microsoft Internet Explorer (MSIE) に対応していません。<br />
+      Google Chrome の使用をお勧めします。<br />
+      UserAgent is "{{request.META.HTTP_USER_AGENT}}"
+    </div>
+    {% else %}
+    <!-- UserAgent is "{{request.META.HTTP_USER_AGENT}}" -->
+    {% endif %}
+    {% endif %}
+    
     {% block menubar %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
