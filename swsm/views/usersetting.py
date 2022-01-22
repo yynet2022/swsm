@@ -150,7 +150,7 @@ def usersetting_favoritegroup(request, *args, **kwargs):
 
     elif request.method == 'POST':
         logger.error("usersetting_favoritegroup:")
-        logger.error("formset: %s", str(formset))
+        logger.error("formset.errors: %s", str(formset.errors))
 
     context = {
         'formset': formset,
@@ -235,7 +235,7 @@ def usersetting_worknotificationrecipient(request, *args, **kwargs):
 
     elif request.method == 'POST':
         logger.error("usersetting_worknotificationrecipient:")
-        logger.error("formset: %s", str(formset))
+        logger.error("formset.error: %s", str(formset.errors))
 
     context = {
         'formset': formset,

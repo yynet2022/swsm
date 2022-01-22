@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import calendar
 import datetime
-from ..models import Holiday, Information, UserSetting,\
-    DEFAULT_S_TIME, DEFAULT_E_TIME
+from ..models import Holiday, Information, DEFAULT_S_TIME, DEFAULT_E_TIME
 
 import logging
 logger = logging.getLogger(__name__)

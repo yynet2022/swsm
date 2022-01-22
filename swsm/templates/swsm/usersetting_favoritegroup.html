@@ -22,7 +22,7 @@
       <table class="table table-sm">
 	<thead>
 	  <tr>
-	    <th>削除</th>
+	    <th class="text-center">削除</th>
 	    <th>名前</th>
 	    <th></th>
 	  </tr>
@@ -30,7 +30,7 @@
 	<tbody>
 	  {% for form in formset %}
 	  <tr>
-	    <td>
+	    <td class="align-middle text-center">
 	      {{ form.DELETE }}
 	      {{ form.DELETE.errors }}
 	    </td>
@@ -56,11 +56,12 @@
   </div>
   <div class="col">
     <ul>
-      <li>同じ名前は登録できない。(仕様)</li>
+      <li>同じ名前の複数登録はできない。(仕様)</li>
       <li>全部削除すると「お気に入り」という名前を一つ自動登録する。(仕様)</li>
       <li>表示順序は基本、辞書順にソートされる。</li>
       <li>リソースが許す限り際限無く増やせるけど、ほどほどにしようね？</li>
-      <li>項目を削除するには削除チェックを入れてください。名前を消すだけだとエラーになります。(未解決)</li>
+      <li>項目を削除するには削除チェックを入れる。
+	名前を消すだけだとエラーになる。(未解決)</li>
     </ul>
   </div>
 </div>

@@ -22,7 +22,7 @@
       <table class="table table-sm">
 	<thead>
 	  <tr>
-	    <th>削除</th>
+	    <th class="text-center">削除</th>
 	    <th>メールアドレス</th>
 	    <th></th>
 	  </tr>
@@ -30,7 +30,7 @@
 	<tbody>
 	  {% for form in formset %}
 	  <tr>
-	    <td>
+	    <td class="align-middle text-center">
 	      {{ form.DELETE }}
 	      {{ form.DELETE.errors }}
 	    </td>
@@ -56,12 +56,13 @@
   </div>
   <div class="col">
     <ul>
-      <li>一つでもアドレスを登録すると通知メールを送信するようになる。</li>
+      <li>一つでもメアドを登録すると通知メールを送信するようになる。</li>
       <li>メール送信する際には、必ず自分にも送られる。(仕様)</li>
-      <li>同じメアドは登録できない。(仕様)</li>
+      <li>同じメアドの複数登録はできない。(仕様)</li>
       <li>表示順序は基本、辞書順にソートされる。</li>
       <li>リソースが許す限り際限無く増やせるけど、ほどほどにしようね？</li>
-      <li>宛先を削除するには削除チェックを入れてください。メアドを消すだけだとエラーになります。(未解決)</li>
+      <li>宛先を削除するには削除チェックを入れる。
+	メアドを消すだけだとエラーになる。(未解決)</li>
     </ul>
   </div>
 </div>
