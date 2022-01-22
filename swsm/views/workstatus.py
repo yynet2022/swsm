@@ -110,11 +110,12 @@ def work_status(request, *args, **kwargs):
 
                 current_site = get_current_site(request)
                 domain = current_site.domain
-                myname = request.user.email
                 try:
                     myname = request.user.usersetting.nickname
                 except Exception:
-                    pass
+                    myname = ''
+                if not myname:
+                    myname = request.user.get_short_name()
                 context = {
                     'protocol': request.scheme,
                     'domain': domain,

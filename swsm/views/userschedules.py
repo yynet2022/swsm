@@ -63,6 +63,8 @@ class UserSchedulesView(MonthCalendarMixin,
                     try:
                         x['key'] = u.usersetting.nickname
                     except Exception:
+                        x['key'] = ''
+                    if not x['key']:
                         x['key'] = u.get_short_name()
                 elif key == "v" or key == "vr":
                     try:
