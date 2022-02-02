@@ -17,4 +17,8 @@ do
     python manage.py "$c" -f "${D}/${c}.csv" >/dev/null 2>&1
 done
 
+python manage.py dumpdata >"${D}/dumpdata.json"
+gzip -v9 "${D}/dumpdata.json"
+
 echo "done. ($D)"
+ls -l "${D}/"
