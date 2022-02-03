@@ -98,7 +98,7 @@
     <table class="table table-sm">
       <thead>
 	<tr>
-	  <th scope="col" class="text-nowrap">
+	  <th scope="col" class="text-nowrap align-middle text-center">
 	    <input type="checkbox" name="__sch_mark_sel" class="form-check-input"
 		   id="id__sch_mark_sel">
 	  </th>
@@ -109,7 +109,7 @@
       <tbody>
 	{% for form in formset %}
 	<tr>
-	  <th scope="row">
+	  <th scope="row" class="align-middle text-center">
 	    {{ form.mark_sel }} {{ form.mark_sel.errors }}
 	    {{ form.id }} {{ form.id.errors }}
 	  </th>
