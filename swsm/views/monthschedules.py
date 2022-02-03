@@ -249,7 +249,7 @@ class MonthSchedulesEID(generic.FormView):
                 except Exception:
                     pass
 
-                for u in g.favoritegroupuser_set.all():
+                for u in g.favoritegroupuser_set.all().order_by('created_at'):
                     p = {'user': u.member,
                          'eid': u.get_eid(),
                          }

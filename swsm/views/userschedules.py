@@ -33,9 +33,12 @@ class UserSchedulesView(MonthCalendarMixin,
             qdict[s.user.pk]['schedule'] = s
 
         try:
-            for g in self.request.user.favoritegroup_set.all():
-                for u in g.favoritegroupuser_set.all():
-                    qdict[u.member.pk]['favorite'] = 10
+            u = self.request.user
+            i = 10
+            for g in u.favoritegroup_set.all().order_by('name').reverse():
+                for gu in g.favoritegroupuser_set.all():
+                    qdict[gu.member.pk]['favorite'] = i
+                i += 1
         except Exception:
             pass
 
@@ -51,7 +54,7 @@ class UserSchedulesView(MonthCalendarMixin,
 
         key = None
         if self.request.method == "GET":
-            key = self.request.GET.get('key')
+            key = self.request.GET.get('key', 'fr')
             logger.info("  key=%s", key)
 
         if key is None:
@@ -67,24 +70,28 @@ class UserSchedulesView(MonthCalendarMixin,
                     if not x['key']:
                         x['key'] = u.get_short_name()
                 elif key == "v" or key == "vr":
+                    i = 1 if key == "v" else -1
                     try:
-                        x['key'] = x['schedule'].vacation
+                        x['key'] = x['schedule'].vacation * i
                     except Exception:
-                        x['key'] = 100
+                        x['key'] = 100 * i
                 elif key == "w" or key == "wr":
+                    i = 1 if key == "w" else -1
                     try:
-                        x['key'] = x['schedule'].working
+                        x['key'] = x['schedule'].working * i
                     except Exception:
-                        x['key'] = 100
+                        x['key'] = 100 * i
                 elif key == "f" or key == "fr":
+                    i = 1 if key == "f" else -1
                     try:
-                        x['key'] = x['favorite']
+                        x['key'] = x['favorite'] * i
                     except Exception:
                         x['key'] = 0
                 else:
                     x['key'] = 0
-            qlist = sorted(qdict.values(), key=lambda x: x['key'])
-            if key == 'nr' or key == 'vr' or key == 'wr' or key == 'fr':
+                x['key2'] = x['user'].get_short_name()
+            qlist = sorted(qdict.values(), key=lambda x: (x['key'], x['key2']))
+            if key == 'nr':
                 qlist.reverse()
 
         def _get_month_schedules():
