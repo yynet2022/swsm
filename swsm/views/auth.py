@@ -42,7 +42,7 @@ class InputAddress(generic.FormView):
 
         email = form.cleaned_data.get('email', None)
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             user = User.objects.create_user(email=email)
             user.is_active = False

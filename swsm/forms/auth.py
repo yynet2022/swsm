@@ -12,4 +12,4 @@ class EmailForm(forms.Form):
         }))
 
     def clean_email(self):
-        return self.cleaned_data['email']
+        return self.cleaned_data['email'].lower()
