@@ -4,6 +4,7 @@ local_settings.py
 *.sql
 db.*
 *.log
+*.log.gz
 *.pid
 *.~*
 *~
