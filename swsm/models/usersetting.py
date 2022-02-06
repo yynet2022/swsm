@@ -57,3 +57,12 @@ class UserSetting(models.Model):
         return (u, self.nickname, self.show_weekend,
                 self.rows_description, self.s_time, self.e_time, f,
                 self.show_month_calendar)
+
+
+def get_usersetting_object(user):
+    if user.is_authenticated:
+        x = UserSetting.objects.filter(user=user)
+        if x.exists():
+            return x.first()
+        return UserSetting.objects.create(user=user)
+    return None

@@ -42,6 +42,15 @@ class FavoriteGroup(models.Model):
         ]
 
 
+def get_favoritegroup_object(user):
+    if user.is_authenticated:
+        x = FavoriteGroup.objects.filter(user=user).order_by('name')
+        if x.exists():
+            return x.first()
+        return FavoriteGroup.objects.create(user=user, name="お気に入り")
+    return None
+
+
 class FavoriteGroupUser(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     favorite_group = \

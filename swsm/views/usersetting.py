@@ -6,7 +6,9 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from ..apps import AppConfig
 from ..forms import UserSettingForm
-from ..models import UserSetting, FavoriteGroup, WorkNotificationRecipient
+from ..models import (UserSetting, get_usersetting_object,
+                      FavoriteGroup, get_favoritegroup_object,
+                      WorkNotificationRecipient)
 
 import logging
 logger = logging.getLogger(__name__)
@@ -21,16 +23,8 @@ class UserSettingView(generic.UpdateView):
     model = UserSetting
     form_class = UserSettingForm
 
-    def object_filter(self, **kwargs):
-        return self.model.objects.filter(**kwargs)
-
     def get_object(self):
-        if self.request.user.is_authenticated:
-            x = self.object_filter(user=self.request.user)
-            if x.exists():
-                return x.first()
-            return self.model.objects.create(user=self.request.user)
-        return None
+        return get_usersetting_object(self.request.user)
 
     def get_context_data(self, **kwargs):
         if not self.request.user.is_authenticated:
@@ -40,8 +34,8 @@ class UserSettingView(generic.UpdateView):
         logger.info("> us.get_context_data: user=%s", self.request.user)
 
         context = super().get_context_data(**kwargs)
-        logger.info("< us.get_context_data: ", context)
         context['usersetting_leftmenuitem_1'] = 'active'
+        logger.info("< us.get_context_data: ", context)
         return context
 
     def form_valid(self, form):
@@ -57,15 +51,8 @@ class UserSettingView(generic.UpdateView):
                 obj.user = self.request.user
                 if not obj.favorite_group_primary:
                     logger.info(" not has fg.")
-                    x = FavoriteGroup.objects.filter(user=self.request.user)
-                    if x.exists():
-                        f = x.first()
-                    else:
-                        f = FavoriteGroup.objects.create(
-                            user=self.request.user,
-                            name="お気に入り",
-                        )
-                    obj.favorite_group_primary = f
+                    obj.favorite_group_primary = \
+                        get_favoritegroup_object(self.request.user)
                 logger.info(" Update: %s", obj)
                 obj.save()
 
@@ -105,9 +92,13 @@ def usersetting_favoritegroup(request, *args, **kwargs):
     if not request.user.is_authenticated:
         raise PermissionDenied
 
-    if not UserSetting.objects.filter(user=request.user).exists():
-        # もし万が一作成されてなかったら、強制的に作成する。
-        UserSetting.objects.create(user=request.user)
+    # もし万が一作成されてなかったら、強制的に作成しておく。
+    s = get_usersetting_object(request.user)
+    f = get_favoritegroup_object(request.user)
+    if s.favorite_group_primary is None:
+        s.favorite_group_primary = f
+        logger.info("> pre-create: %s", s)
+        s.save()
 
     qs_org = request.user.favoritegroup_set.all().order_by('name')
     FavoriteGroupFormSet = forms.modelformset_factory(
@@ -136,15 +127,10 @@ def usersetting_favoritegroup(request, *args, **kwargs):
             except Exception as e:
                 logger.error("save(): %s: %s", type(e), str(e))
 
-        if not request.user.favoritegroup_set.all().exists():
-            # もし全部消してしまったら
-            FavoriteGroup.objects.create(
-                user=request.user,
-                name="お気に入り",
-            )
+        # もし全部消してしまったら作るし、登録する。
+        x = get_favoritegroup_object(request.user)
         if request.user.usersetting.favorite_group_primary is None:
-            request.user.usersetting.favorite_group_primary = \
-                request.user.favoritegroup_set.all().first()
+            request.user.usersetting.favorite_group_primary = x
             request.user.usersetting.save()
         return redirect(AppConfig.name + ':usersetting_favoritegroup')
 
@@ -196,9 +182,8 @@ def usersetting_worknotificationrecipient(request, *args, **kwargs):
     if not request.user.is_authenticated:
         raise PermissionDenied
 
-    if not UserSetting.objects.filter(user=request.user).exists():
-        # もし万が一作成されてなかったら、強制的に作成する。
-        UserSetting.objects.create(user=request.user)
+    # もし万が一作成されてなかったら、強制的に作成する。
+    get_usersetting_object(request.user)
 
     qs_org = request.user.worknotificationrecipient_set.all() \
                                                        .order_by('recipient')
