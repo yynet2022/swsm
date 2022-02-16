@@ -222,6 +222,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.js"></script>
 <script>
   (function($){
+      var tID = -1
+      if (document.visibilityState == "visible") {
+	  tID = setTimeout(function () {
+	      location.reload(true);
+	  }, 5*60*1000);
+      }
+
+      document.addEventListener("visibilitychange", function() {
+	  if (tID > 0) {
+	      clearTimeout (tID)
+	      tID = -1
+	  }
+	  if (document.visibilityState == "visible") {
+	      location.reload(true);
+	  }
+      });
+
       // timedropper
       $("#id_ws_time, #id_we_time, #id_zs_time, #id_ze_time").timeDropper({
           format: "HH:mm",
