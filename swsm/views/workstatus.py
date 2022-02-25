@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from ..apps import AppConfig
-from ..models import WorkStatus, UserLog
+from ..models import WorkStatus, UserLog, Holiday
 import datetime
 from textwrap import indent
 
@@ -14,6 +14,74 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 # logger.setLevel(logging.INFO)
+
+
+def is_dayoff(date):
+    try:
+        # もし登録があるならそれに従う。
+        # 土曜日勤務の場合もありえるから。
+        x = Holiday.objects.get(date=date)
+        return x.dayoff
+    except Exception:
+        pass
+    w = date.weekday()
+    if w == 5 or w == 6:  # 土曜日 or 日曜日
+        return True
+    return False
+
+
+def make_schstr(s):
+    q = ''
+    v = s.vacation_f()
+    if v:
+        q += v + '\n'
+    w = s.working_f()
+    if w:
+        q += w + '\n'
+    ws = s.ws_time_f()
+    we = s.we_time_f()
+    if ws and we:
+        q += '出社 ' + ws.strftime('%H:%M') + \
+            ' - ' + we.strftime('%H:%M') + '\n'
+    zs = s.zs_time_f()
+    ze = s.ze_time_f()
+    if zs and ze:
+        q += '在宅 ' + zs.strftime('%H:%M') + \
+            ' - ' + ze.strftime('%H:%M') + '\n'
+    dc = s.description
+    if dc:
+        q += dc + '\n'
+    return indent(q, '  ')
+
+
+def get_schstr(u, n):
+    d = datetime.date.today()
+    schstr = '本日 (%s) の予定:\n' % d
+    try:
+        s = u.schedule_set.get(date=d)
+        schstr += make_schstr(s)
+    except Exception:
+        schstr += '  (登録されていません)\n'
+
+    W = ['月', '火', '水', '木', '金', '土', '日']
+    p = 0
+    for x in range(n):
+        dd = d + datetime.timedelta(days=x+1)
+        try:
+            s = u.schedule_set.get(date=dd)
+            schstr += '\n%s (%s):\n' % (dd, W[dd.weekday()])
+            schstr += make_schstr(s)
+            if s.vacation != 10:
+                break
+            p += 1
+            if p > 2:
+                break
+        except Exception:
+            if not is_dayoff(dd):
+                schstr += '\n%s (%s):\n' % (dd, W[dd.weekday()])
+                schstr += '  (登録されていません)\n'
+                break
+    return schstr
 
 
 def work_status(request, *args, **kwargs):
@@ -33,6 +101,13 @@ def work_status(request, *args, **kwargs):
                 next_url = AppConfig.name + ':home'
             logger.info("> submit=%s", submit)
             logger.info("> next_url=%s", next_url)
+
+            s = request.user.schedule_set
+            if not s.filter(date=datetime.date.today()).exists():
+                logger.error(" In work_status: not exist schedule")
+                return render(request,
+                              AppConfig.name + '/error_wnrnosch.html',
+                              {'error_str': "Not exist schedule for today.", })
 
             try:
                 workstatus = WorkStatus.objects.get(user=request.user)
@@ -81,34 +156,10 @@ def work_status(request, *args, **kwargs):
                 if request.user.email not in to_addr:
                     to_addr.append(request.user.email)
 
-                schstr = '本日 (%s) の予定:\n' % datetime.date.today()
-                try:
-                    s = request.user.schedule_set \
-                                    .get(date=datetime.date.today())
-                    q = ''
-                    v = s.vacation_f()
-                    if v:
-                        q += v + '\n'
-                    w = s.working_f()
-                    if w:
-                        q += w + '\n'
-                    ws = s.ws_time_f()
-                    we = s.we_time_f()
-                    if ws and we:
-                        q += '出社 ' + ws.strftime('%H:%M') + \
-                            ' - ' + we.strftime('%H:%M') + '\n'
-                    zs = s.zs_time_f()
-                    ze = s.ze_time_f()
-                    if zs and ze:
-                        q += '在宅 ' + zs.strftime('%H:%M') + \
-                            ' - ' + ze.strftime('%H:%M') + '\n'
-                    dc = s.description
-                    if dc:
-                        q += dc + '\n'
-                    schstr += indent(q, '  ')
-                except Exception:
-                    schstr += '  (登録されていません)\n'
-
+                nn = 0
+                if workstatus.status == 0:  # 終了のとき
+                    nn = 14
+                schstr = get_schstr(request.user, nn)
                 current_site = get_current_site(request)
                 domain = current_site.domain
                 try:

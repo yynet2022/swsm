@@ -1,0 +1,28 @@
+{% extends 'swsm/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="card">
+    <h1 class="card-header">本日の予定が見付かりません……</h1>
+    <div class="card-body">
+      <h5 class="card-title">エラーメッセージ</h5>
+      <p class="card-text">
+	{{ error_str }}
+      </p>
+      <p class="card-text">
+	残念ながら、本日の貴方の予定が見付かりませんでした。<br />
+      </p>
+      <p class="card-text">
+	以下のボタンからホームへ移動し、<br />
+	まずは本日の予定の入力をお願いします。<br />
+      </p>
+      <p>
+	なお、予定は日毎に入力するよりも、
+	月一括で入力することをお勧めします。<br />
+	(そのほうが楽だと思うよ？ ……たぶん)
+      </p>
+      <a class="btn btn-primary m-2" href="{% url 'swsm:home' %}" role="button">ホームへ</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
