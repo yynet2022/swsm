@@ -2,7 +2,7 @@
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail
+from django.core.mail import get_connection, EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
 from ..apps import AppConfig
@@ -14,6 +14,16 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 # logger.setLevel(logging.INFO)
+
+
+def send_mail(subject, message, from_email, recipient_list):
+    connection = get_connection(False)
+    mail = EmailMultiAlternatives(
+        subject, message, from_email, recipient_list,
+        connection=connection,
+        headers={'X-swsm': 'workstatus/1.0'},
+    )
+    return mail.send()
 
 
 def is_dayoff(date):
