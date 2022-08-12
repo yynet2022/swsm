@@ -250,6 +250,23 @@
 	  // 0:--, 10:終日, 20:AM休, 30:PM休
 	  var wok = $("#id_working").val();
 	  // 10:終日出社, 20:部分在宅, 30:終日在宅
+	  if (vac == 30) {
+	      $("#id_we_time, #id_ze_time")
+		  .removeClass('td-input').off()
+		  .val('{{ user_ls_time }}')
+		  .timeDropper({
+		      format: "HH:mm",
+		      setCurrentTime: false,
+		  });
+	  } else if (vac == 20) {
+	      $("#id_ws_time, #id_zs_time")
+		  .removeClass('td-input').off()
+		  .val('{{ user_le_time }}')
+		  .timeDropper({
+		      format: "HH:mm",
+		      setCurrentTime: false,
+		  });
+	  }
 	  if (vac == 10) {
 	      $("#div_id_working").hide();
 	      $("#div_id_ws_time").hide();

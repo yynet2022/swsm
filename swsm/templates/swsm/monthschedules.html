@@ -258,6 +258,30 @@
 	  var vac = $(idn + "vacation").val()
 	  // 0:--, 10:終日, 20:AM休, 30:PM休
 
+	  if (vac == 30) {
+	      $("#id_form-"+n+"-we_time, #id_form-"+n+"-ze_time")
+		  .removeClass('td-input').off()
+		  .val('{{ user_ls_time }}')
+	      if ($("#id__timedropper").prop('checked')) {
+		  $("#id_form-"+n+"-we_time, #id_form-"+n+"-ze_time")
+		      .timeDropper({
+			  format: "HH:mm",
+			  setCurrentTime: false,
+		      });
+	      }
+	  } else if (vac == 20) {
+	      $("#id_form-"+n+"-ws_time, #id_form-"+n+"-zs_time")
+		  .removeClass('td-input').off()
+		  .val('{{ user_le_time }}')
+	      if ($("#id__timedropper").prop('checked')) {
+		  $("#id_form-"+n+"-ws_time, #id_form-"+n+"-zs_time")
+		      .timeDropper({
+			  format: "HH:mm",
+			  setCurrentTime: false,
+		      });
+	      }
+	  }
+
 	  var divn = "#div_id_form-" + n + "-"
 	  if (vac == 10) {
 	      ["working", "ws_time", "we_time", "zs_time", "ze_time"].forEach (

@@ -2,6 +2,7 @@
 import calendar
 import datetime
 from ..models import Holiday, Information, DEFAULT_S_TIME, DEFAULT_E_TIME
+from ..models import DEFAULT_LUNCH_S_TIME, DEFAULT_LUNCH_E_TIME
 
 import logging
 logger = logging.getLogger(__name__)
@@ -190,6 +191,20 @@ class UtilsCalendarMixin:
             return self.request.user.usersetting.e_time
         except Exception:
             return DEFAULT_E_TIME
+
+    @property
+    def user_ls_time(self):
+        try:
+            return self.request.user.usersetting.ls_time
+        except Exception:
+            return DEFAULT_LUNCH_S_TIME
+
+    @property
+    def user_le_time(self):
+        try:
+            return self.request.user.usersetting.le_time
+        except Exception:
+            return DEFAULT_LUNCH_E_TIME
 
     @property
     def informations(self):

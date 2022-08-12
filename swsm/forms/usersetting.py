@@ -9,6 +9,7 @@ class UserSettingForm(forms.ModelForm):
         model = UserSetting
         fields = ('nickname',
                   's_time', 'e_time',
+                  'ls_time', 'le_time',
                   'rows_description',
                   'show_weekend', 'show_month_calendar')
         widgets = {
@@ -20,6 +21,12 @@ class UserSettingForm(forms.ModelForm):
             'e_time':  forms.TimeInput(
                 format='%H:%M',
                 attrs={'class': 'form-control', }),
+            'ls_time':  forms.TimeInput(
+                format='%H:%M',
+                attrs={'class': 'form-control', }),
+            'le_time':  forms.TimeInput(
+                format='%H:%M',
+                attrs={'class': 'form-control', }),
             'rows_description': forms.NumberInput(
                 attrs={'class': 'form-control', }),
             'show_weekend': forms.CheckboxInput(
@@ -29,8 +36,10 @@ class UserSettingForm(forms.ModelForm):
         }
         help_texts = {
             'nickname': _('表示名として使用。日本語(漢字・ひらがな等)だと判り易いかと'),
-            's_time': _('勤務開始時間のデフォルト値'),
-            'e_time': _('勤務終了時間のデフォルト値'),
+            's_time': _('勤務開始時刻のデフォルト値'),
+            'e_time': _('勤務終了時刻のデフォルト値'),
+            'ls_time': _('昼休み開始時刻'),
+            'le_time': _('昼休み終了時刻'),
             'rows_description': _('3以上、15以下'),
             'show_weekend': _('スケジュール(週)に土曜日・日曜日を表示するか'),
             'show_month_calendar': _('スケジュールを月表示にするか'),

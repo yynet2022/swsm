@@ -69,6 +69,8 @@ class HomeView(MonthCalendarMixin,
             'informations': self.informations,
             'userlist': ulist.exclude(is_active=False),
             'favorite_infos': self. get_fav_infos(),
+            'user_ls_time': self.user_ls_time,
+            'user_le_time': self.user_le_time,
         })
         context['form'].fields['description'].widget.attrs['rows'] = \
             self.rows_description

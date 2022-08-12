@@ -53,6 +53,8 @@ class CalendarTools(MonthCalendarMixin,
         context.update({
             'today': datetime.date.today(),
             'date': self.target_date,
+            'user_ls_time': self.user_ls_time,
+            'user_le_time': self.user_le_time,
             })
         del context['month_week_names']
         del context['month_days']

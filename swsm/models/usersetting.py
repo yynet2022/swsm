@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from .defs import DEFAULT_S_TIME, DEFAULT_E_TIME
+from .defs import DEFAULT_LUNCH_S_TIME, DEFAULT_LUNCH_E_TIME
 from .favoritegroup import FavoriteGroup
 
 User = get_user_model()
@@ -22,6 +23,9 @@ class UserSetting(models.Model):
     s_time = models.TimeField('開始時間', default=DEFAULT_S_TIME)
     e_time = models.TimeField('終了時間', default=DEFAULT_E_TIME)
 
+    ls_time = models.TimeField('昼休み開始時間', default=DEFAULT_LUNCH_S_TIME)
+    le_time = models.TimeField('昼休み終了時間', default=DEFAULT_LUNCH_E_TIME)
+
     favorite_group_primary = \
         models.ForeignKey(FavoriteGroup,
                           on_delete=models.SET_NULL, null=True, blank=True)
@@ -39,10 +43,14 @@ class UserSetting(models.Model):
             f = "-"
         s = "UserSetting<user=%s/%s," + \
             "show_weekend=%s,rows_description=%d," + \
-            "s_time=%s,e_time=%s,fg_primary=%s,show_month=%s>"
+            "s_time=%s,e_time=%s," + \
+            "ls_time=%s,le_time=%s," + \
+            "fg_primary=%s,show_month=%s>"
         return s % (u, self.nickname,
                     str(self.show_weekend), self.rows_description,
-                    str(self.s_time), str(self.e_time), f,
+                    str(self.s_time), str(self.e_time),
+                    str(self.ls_time), str(self.le_time),
+                    f,
                     str(self.show_month_calendar))
 
     def get_itemlist(self):
@@ -55,7 +63,10 @@ class UserSetting(models.Model):
         except Exception:
             f = ''
         return (u, self.nickname, self.show_weekend,
-                self.rows_description, self.s_time, self.e_time, f,
+                self.rows_description,
+                self.s_time, self.e_time,
+                self.ls_time, self.le_time,
+                f,
                 self.show_month_calendar)
 
 
