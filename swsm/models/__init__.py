@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from .defs import DEFAULT_S_TIME, DEFAULT_E_TIME
-from .defs import DEFAULT_LUNCH_S_TIME, DEFAULT_LUNCH_E_TIME
+from .defs import (
+    DEFAULT_S_TIME, DEFAULT_E_TIME,
+    DEFAULT_LUNCH_S_TIME, DEFAULT_LUNCH_E_TIME,
+    DEFAULT_WORKING_AT)
 from .schedule import Schedule
 from .holiday import Holiday
 from .information import Information
@@ -13,6 +15,7 @@ from .worknotificationrecipient import WorkNotificationRecipient
 
 __all__ = ['DEFAULT_S_TIME', 'DEFAULT_E_TIME',
            'DEFAULT_LUNCH_S_TIME', 'DEFAULT_LUNCH_E_TIME',
+           'DEFAULT_WORKING_AT',
            'Schedule',
            'Holiday',
            'Information',

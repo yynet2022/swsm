@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import calendar
 import datetime
-from ..models import Holiday, Information, DEFAULT_S_TIME, DEFAULT_E_TIME
-from ..models import DEFAULT_LUNCH_S_TIME, DEFAULT_LUNCH_E_TIME
+from ..models import (
+    Holiday, Information,
+    DEFAULT_S_TIME, DEFAULT_E_TIME,
+    DEFAULT_LUNCH_S_TIME, DEFAULT_LUNCH_E_TIME,
+    DEFAULT_WORKING_AT)
 
 import logging
 logger = logging.getLogger(__name__)
@@ -117,7 +120,8 @@ class UtilsCalendarMixin:
         return self.model.objects.filter(**kwargs)
 
     def get_model(self):
-        return self.model(ws_time=self.user_s_time,
+        return self.model(working=self.user_working_at,
+                          ws_time=self.user_s_time,
                           we_time=self.user_e_time,
                           zs_time=self.user_s_time,
                           ze_time=self.user_e_time)
@@ -205,6 +209,13 @@ class UtilsCalendarMixin:
             return self.request.user.usersetting.le_time
         except Exception:
             return DEFAULT_LUNCH_E_TIME
+
+    @property
+    def user_working_at(self):
+        try:
+            return self.request.user.usersetting.working_at
+        except Exception:
+            return DEFAULT_WORKING_AT
 
     @property
     def informations(self):

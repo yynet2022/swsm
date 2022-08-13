@@ -10,11 +10,13 @@ class UserSettingForm(forms.ModelForm):
         fields = ('nickname',
                   's_time', 'e_time',
                   'ls_time', 'le_time',
+                  'working_at',
                   'rows_description',
                   'show_weekend', 'show_month_calendar')
         widgets = {
             'nickname': forms.TextInput(
                 attrs={'class': 'form-control', }),
+            'working_at':  forms.Select(attrs={'class': 'form-select', }),
             's_time':  forms.TimeInput(
                 format='%H:%M',
                 attrs={'class': 'form-control', }),
@@ -36,6 +38,7 @@ class UserSettingForm(forms.ModelForm):
         }
         help_texts = {
             'nickname': _('表示名として使用。日本語(漢字・ひらがな等)だと判り易いかと'),
+            'working_at': _('出社か在宅か、どちらをデフォルトにするか'),
             's_time': _('勤務開始時刻のデフォルト値'),
             'e_time': _('勤務終了時刻のデフォルト値'),
             'ls_time': _('昼休み開始時刻'),

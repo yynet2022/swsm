@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from .defs import DEFAULT_S_TIME, DEFAULT_E_TIME
+from .defs import DEFAULT_S_TIME, DEFAULT_E_TIME, DEFAULT_WORKING_AT
 
 User = get_user_model()
 
@@ -27,7 +27,8 @@ class Schedule(models.Model):
     """スケジュール"""
     date = models.DateField('日付')
     vacation = models.IntegerField('休暇', default=0, choices=VACATION_CHOICES)
-    working = models.IntegerField('出社/在宅', default=10, choices=WORKING_CHOICES)
+    working = models.IntegerField('出社/在宅', default=DEFAULT_WORKING_AT,
+                                  choices=WORKING_CHOICES)
     ws_time = models.TimeField('出社予定時間', default=DEFAULT_S_TIME)
     we_time = models.TimeField('退社予定時間', default=DEFAULT_E_TIME)
     zs_time = models.TimeField('在宅開始時間', default=DEFAULT_S_TIME)

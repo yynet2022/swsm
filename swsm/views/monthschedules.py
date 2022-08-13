@@ -101,6 +101,7 @@ def month_schedules(request, *args, **kwargs):
     init_data = {}
     s_time = ct.user_s_time
     e_time = ct.user_e_time
+    working_at = ct.user_working_at
     for i in range(ndays):
         tt = target_date.replace(day=i+1)
 
@@ -112,6 +113,7 @@ def month_schedules(request, *args, **kwargs):
                          'we_time': e_time,
                          'zs_time': s_time,
                          'ze_time': e_time,
+                         'working': working_at,
                          'description': '',
                          'mark_add': True,
                          'mark_sel': False, }
