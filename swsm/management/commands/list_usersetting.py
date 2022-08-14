@@ -11,13 +11,17 @@ class Command(MyBaseCommand):
     Model = UserSetting
 
     def do_csv_line(self, ln, commit=False):
-        u, nickname, w, r, s, e, f_name, m = [x.strip() for x in ln]
+        u, nickname, w, r, wat, s, e, ls, le, f_name, m = \
+            [x.strip() for x in ln]
 
         user = User.objects.get(email=u)
         show_weekend = _strtobool(w)
         rows_description = int(r)
+        working_at = int(wat)
         s_time = datetime.time.fromisoformat(s)
         e_time = datetime.time.fromisoformat(e)
+        ls_time = datetime.time.fromisoformat(ls)
+        le_time = datetime.time.fromisoformat(le)
         favorite_group_primary = None
         show_month_calendar = _strtobool(m)
 
@@ -43,11 +47,20 @@ class Command(MyBaseCommand):
             if x.rows_description != rows_description:
                 x.rows_description = rows_description
                 changed = True
+            if x.working_at != working_at:
+                x.working_at = working_at
+                changed = True
             if x.s_time != s_time:
                 x.s_time = s_time
                 changed = True
             if x.e_time != e_time:
                 x.e_time = e_time
+                changed = True
+            if x.ls_time != ls_time:
+                x.ls_time = ls_time
+                changed = True
+            if x.le_time != le_time:
+                x.le_time = le_time
                 changed = True
             if x.favorite_group_primary != favorite_group_primary:
                 x.favorite_group_primary = favorite_group_primary
@@ -61,7 +74,9 @@ class Command(MyBaseCommand):
             x = self.Model(user=user,
                            nickname=nickname, show_weekend=show_weekend,
                            rows_description=rows_description,
+                           working_at=working_at,
                            s_time=s_time, e_time=e_time,
+                           ls_time=ls_time, le_time=le_time,
                            show_month_calendar=show_month_calendar)
             if favorite_group_primary is not None:
                 x.favorite_group_primary = favorite_group_primary

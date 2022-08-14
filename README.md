@@ -34,7 +34,7 @@ pip install uWSGI
 ```bash
 git clone https://github.com/yynet2022/swsm.git
 cd swsm
-python manage.py easy_setup 
+python manage.py easy_setup --force
 ```
 
 Edit `project/local_settings.py`
