@@ -240,32 +240,55 @@
       });
 
       // timedropper
-      $("#id_ws_time, #id_we_time, #id_zs_time, #id_ze_time").timeDropper({
+      var tdopts = {
           format: "HH:mm",
           setCurrentTime: false,
-      });
+      }
+      $("#id_ws_time, #id_we_time, #id_zs_time, #id_ze_time")
+	  .timeDropper(tdopts);
 
+      function updateTimeElement (id, v) {
+	  $(id).removeClass('td-input').off()
+	      .val(v)
+	      .timeDropper(tdopts);
+      }
+
+      var ws_time = ""
+      var we_time = ""
+      var zs_time = ""
+      var ze_time = ""
       function setupInputField () {
 	  var vac = $("#id_vacation").val();
 	  // 0:--, 10:終日, 20:AM休, 30:PM休
 	  var wok = $("#id_working").val();
 	  // 10:終日出社, 20:部分在宅, 30:終日在宅
+
+	  if (ws_time) {
+	      updateTimeElement ("#id_ws_time", ws_time)
+	      ws_time = ""
+	  }
+	  if (we_time) {
+	      updateTimeElement ("#id_we_time", we_time)
+	      we_time = ""
+	  }
+	  if (zs_time) {
+	      updateTimeElement ("#id_zs_time", zs_time)
+	      zs_time = ""
+	  }
+	  if (ze_time) {
+	      updateTimeElement ("#id_ze_time", ze_time)
+	      ze_time = ""
+	  }
 	  if (vac == 30) {
-	      $("#id_we_time, #id_ze_time")
-		  .removeClass('td-input').off()
-		  .val('{{ user_ls_time }}')
-		  .timeDropper({
-		      format: "HH:mm",
-		      setCurrentTime: false,
-		  });
+	      we_time = $("#id_we_time").val()
+	      ze_time = $("#id_ze_time").val()
+	      var v = '{{ user_ls_time }}'
+	      updateTimeElement ("#id_we_time, #id_ze_time", v)
 	  } else if (vac == 20) {
-	      $("#id_ws_time, #id_zs_time")
-		  .removeClass('td-input').off()
-		  .val('{{ user_le_time }}')
-		  .timeDropper({
-		      format: "HH:mm",
-		      setCurrentTime: false,
-		  });
+	      ws_time = $("#id_ws_time").val()
+	      zs_time = $("#id_zs_time").val()
+	      var v = '{{ user_le_time }}'
+	      updateTimeElement ("#id_ws_time, #id_zs_time", v)
 	  }
 	  if (vac == 10) {
 	      $("#div_id_working").hide();
