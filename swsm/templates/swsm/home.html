@@ -222,12 +222,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.js"></script>
 <script>
   (function($){
-      var tID = -1
+      let tID = -1
       if (document.visibilityState == "visible") {
 	  tID = setTimeout(function () {
 	      location.reload(true);
 	  }, 5*60*1000);
       }
+      // console.log ("tID", tID)
 
       document.addEventListener("visibilitychange", function() {
 	  if (tID > 0) {
@@ -240,7 +241,7 @@
       });
 
       // timedropper
-      var tdopts = {
+      const tdopts = {
           format: "HH:mm",
           setCurrentTime: false,
       }
@@ -253,14 +254,14 @@
 	      .timeDropper(tdopts);
       }
 
-      var ws_time = ""
-      var we_time = ""
-      var zs_time = ""
-      var ze_time = ""
+      let ws_time = ""
+      let we_time = ""
+      let zs_time = ""
+      let ze_time = ""
       function setupInputField () {
-	  var vac = $("#id_vacation").val();
+	  const vac = $("#id_vacation").val();
 	  // 0:--, 10:終日, 20:AM休, 30:PM休
-	  var wok = $("#id_working").val();
+	  const wok = $("#id_working").val();
 	  // 10:終日出社, 20:部分在宅, 30:終日在宅
 
 	  if (ws_time) {
@@ -282,12 +283,12 @@
 	  if (vac == 30) {
 	      we_time = $("#id_we_time").val()
 	      ze_time = $("#id_ze_time").val()
-	      var v = '{{ user_ls_time }}'
+	      const v = '{{ user_ls_time }}'
 	      updateTimeElement ("#id_we_time, #id_ze_time", v)
 	  } else if (vac == 20) {
 	      ws_time = $("#id_ws_time").val()
 	      zs_time = $("#id_zs_time").val()
-	      var v = '{{ user_le_time }}'
+	      const v = '{{ user_le_time }}'
 	      updateTimeElement ("#id_ws_time, #id_zs_time", v)
 	  }
 	  if (vac == 10) {
@@ -335,13 +336,13 @@
 
       /*
       setInterval(function() {
-	  var now_date = new Date();
-	  var yy = now_date.getFullYear();
-	  var mm = now_date.getMonth() + 1;
-	  var dd = now_date.getDate();
-	  var h = now_date.getHours();
-	  var m = now_date.getMinutes();
-	  var s = now_date.getSeconds();
+          const now_date = new Date();
+	  const yy = now_date.getFullYear();
+	  const mm = now_date.getMonth() + 1;
+	  const dd = now_date.getDate();
+	  const h = now_date.getHours();
+	  const m = now_date.getMinutes();
+	  const s = now_date.getSeconds();
 	  $("#id__demo_year").text(yy);
 	  $("#id__demo_month").text(mm);
 	  $("#id__demo_day").text(dd);

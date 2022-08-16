@@ -198,8 +198,28 @@
       };
       */
   
-      var max_days = 40
       // console.log (">>>>>>>")
+      const max_days = (function () {
+	  const max = 100
+	  for (let i = 0; i < max; i ++) {
+	      if (! $("#id_form-"+i+"-ws_time").length) {
+		  return i
+	      }
+	  }
+	  return max; })();
+      // console.log (max_days);
+      let ws_t = new Array (max_days);
+      let we_t = new Array (max_days);
+      let zs_t = new Array (max_days);
+      let ze_t = new Array (max_days);
+      for (let i = 0; i < max_days; i ++) {
+	  ws_t [i] = we_t [i] = zs_t [i] = ze_t [i] = ""
+      }
+
+      const tdopts = {
+          format: "HH:mm",
+          setCurrentTime: false,
+      }
       function timeform (n) {
 	  // timedropper
 	  [$("#id_form-"+n+"-ws_time"),
@@ -207,10 +227,7 @@
 	   $("#id_form-"+n+"-zs_time"),
 	   $("#id_form-"+n+"-ze_time")].forEach (function (e) {
 	       if (e.length) {
-		   e.timeDropper({
-		       format: "HH:mm",
-		       setCurrentTime: false,
-		   })
+		   e.timeDropper(tdopts)
 	       }
 	   })
       }
@@ -253,36 +270,48 @@
 	   */
       }
 
+      function updateTimeElement (id, v) {
+	  $(id).removeClass('td-input').off().val(v)
+	  if ($("#id__timedropper").prop('checked')) {
+	      $(id).timeDropper(tdopts);
+	  }
+      }
+
       function setupInputField (n) {
-	  var idn = "#id_form-" + n + "-"
-	  var vac = $(idn + "vacation").val()
+	  const idn = "#id_form-" + n + "-"
+	  const vac = $(idn + "vacation").val()
 	  // 0:--, 10:終日, 20:AM休, 30:PM休
 
-	  if (vac == 30) {
-	      $("#id_form-"+n+"-we_time, #id_form-"+n+"-ze_time")
-		  .removeClass('td-input').off()
-		  .val('{{ user_ls_time }}')
-	      if ($("#id__timedropper").prop('checked')) {
-		  $("#id_form-"+n+"-we_time, #id_form-"+n+"-ze_time")
-		      .timeDropper({
-			  format: "HH:mm",
-			  setCurrentTime: false,
-		      });
-	      }
-	  } else if (vac == 20) {
-	      $("#id_form-"+n+"-ws_time, #id_form-"+n+"-zs_time")
-		  .removeClass('td-input').off()
-		  .val('{{ user_le_time }}')
-	      if ($("#id__timedropper").prop('checked')) {
-		  $("#id_form-"+n+"-ws_time, #id_form-"+n+"-zs_time")
-		      .timeDropper({
-			  format: "HH:mm",
-			  setCurrentTime: false,
-		      });
-	      }
+	  if (ws_t [n]) {
+	      updateTimeElement (idn + "ws_time", ws_t [n])
+	      ws_t [n] = ""
+	  }
+	  if (we_t [n]) {
+	      updateTimeElement (idn + "we_time", we_t [n])
+	      we_t [n] = ""
+	  }
+	  if (zs_t [n]) {
+	      updateTimeElement (idn + "zs_time", zs_t [n])
+	      zs_t [n] = ""
+	  }
+	  if (ze_t [n]) {
+	      updateTimeElement (idn + "ze_time", ze_t [n])
+	      ze_t [n] = ""
 	  }
 
-	  var divn = "#div_id_form-" + n + "-"
+	  if (vac == 30) {
+	      we_t [n] = $(idn + "we_time").val()
+	      ze_t [n] = $(idn + "ze_time").val()
+	      const v = '{{ user_ls_time }}'
+	      updateTimeElement (idn + "we_time, " + idn + "ze_time", v)
+	  } else if (vac == 20) {
+	      ws_t [n] = $(idn + "ws_time").val()
+	      zs_t [n] = $(idn + "zs_time").val()
+	      const v = '{{ user_le_time }}'
+	      updateTimeElement (idn + "ws_time, " + idn + "zs_time", v)
+	  }
+
+	  const divn = "#div_id_form-" + n + "-"
 	  if (vac == 10) {
 	      ["working", "ws_time", "we_time", "zs_time", "ze_time"].forEach (
 		  function (e) {
@@ -294,7 +323,7 @@
 		      $(divn + e).show()
 		  })
 
-	      var wok = $(idn + "working").val()
+	      const wok = $(idn + "working").val()
 	      // 10:終日出社, 20:部分在宅, 30:終日在宅
 	      if (wok == 10) {
 		  $(divn + "zs_time").hide()
@@ -326,9 +355,9 @@
       }
 
       function setup_sch_mark_sel () {
-	  var nqs = 0, nqson = 0
+	  let nqs = 0, nqson = 0
 	  for (let i = 0; i < max_days; i ++) {
-	      var w = $("#id_form-"+i+"-mark_sel")
+	      const w = $("#id_form-"+i+"-mark_sel")
 	      if (w.length) {
 		  nqs ++
 		  if (w.prop('checked')) {
@@ -340,7 +369,7 @@
 	  }
 	  // console.log (nqs)
 	  // console.log (nqson)
-	  var w0 = $("#id__sch_mark_sel")
+	  let w0 = $("#id__sch_mark_sel")
 	  if (nqson == 0) {
 	      w0.prop('checked', false)
 	      w0.prop('indeterminate', false)
@@ -356,7 +385,7 @@
       function changed_sch_mark_sel () {
 	  // console.log ($("#id__sch_mark_sel").prop('checked'))
 	  // console.log ($("#id__sch_mark_sel").prop('indeterminate'))
-	  var t = $("#id__sch_mark_sel").prop('checked')
+	  const t = $("#id__sch_mark_sel").prop('checked')
 	  for (let i = 0; i < max_days; i ++) {
 	      let w = $("#id_form-"+i+"-mark_sel")
 	      if (w.length) {
