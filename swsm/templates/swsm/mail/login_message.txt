@@ -11,5 +11,6 @@
 
 <{{ protocol }}://{{ domain }}{% url 'swsm:authtokenemail' user.token eid %}>
 
+-- 
 by 管理者＠勤務予定表 <{{ from_addr }}>
 # このメールは {{ REMOTE_ADDR }} から発信されました。
