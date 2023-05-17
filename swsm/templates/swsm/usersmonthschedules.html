@@ -1,0 +1,115 @@
+{% extends 'swsm/base.html' %}
+
+{% block menubar %}
+{% with with_workstatus=True %}
+{% include 'swsm/includes/menubar.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+
+<div class="col-auto">
+  <form id="id__form_umsnavi">
+    <div class="col-12 col-lg-10 d-flex justify-content-evenly">
+      <button type="submit" id="id_prev" class="btn btn-link mx-2"
+	      name="form_navi" value="prev">前月&lt;&lt;</button>
+      <span class="lead">
+	{{ month_curr|date:"Y年 n月" }}
+      </span>
+      <button type="submit" id="id_next" class="btn btn-link mx-2"
+	      name="form_navi" value="next">&gt;&gt;次月</button>
+    </div>
+
+    {% if today.month != date.month or today.year != date.year %}
+    <div class="col-12 col-lg-10 d-flex justify-content-center">
+      <button type="submit" id="id_today" class="btn btn-link mx-2"
+	      name="form_navi" value="today">
+	（{{today|date:"Y年n月"}}へ）
+      </button>
+    </div>
+    {% endif %}
+
+    <span class="col-auto m-1 p-1" role="group">
+      <span class="m-1 p-1">
+	<input type="checkbox" id="v10" name="v10" {{cv.v10}}>
+	<label for="v10">終日休</label>
+      </span>
+
+      <span class="m-1 p-1">
+	<input type="checkbox" id="v20" name="v20" {{cv.v20}}>
+	<label for="v20">AM休</label>
+      </span>
+
+      <span class="m-1 p-1">
+	<input type="checkbox" id="v30" name="v30" {{cv.v30}}>
+	<label for="v30">PM休</label>
+      </span>
+    </span>
+    <span class="col-auto m-1 p-1" role="group">
+      <span class="m-1 p-1">
+	<input type="checkbox" id="w10" name="w10" {{cv.w10}}>
+	<label for="w10">出社 (在宅無)</label>
+      </span>
+
+      <span class="m-1 p-1">
+	<input type="checkbox" id="w20" name="w20" {{cv.w20}}>
+	<label for="w20">部分在宅+部分出社</label>
+      </span>
+
+      <span class="m-1 p-1">
+	<input type="checkbox" id="w30" name="w30" {{cv.w30}}>
+	<label for="w30">終日在宅 (出社無)</label>
+      </span>
+
+    </span>
+    <span class="col-auto m-1 p-1">
+      <button type="submit" id="id__form_submit" class="btn btn-primary mx-2"
+	      name="form_submit" value="update">更新</button>
+    </span>
+  </form>
+</div>
+<div class="w-100"></div>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th></th>
+      {% for q in qlist %}
+      <td><a href="{% url 'swsm:monthschedules_eid' q.user.get_eid %}">
+	  {% if q.user.usersetting.nickname %}
+	  {{ q.user.usersetting.nickname }}
+	  {% else %}
+	  {{ q.user.get_short_name }}
+	  {% endif %}
+      </a></td>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for x in mday_schedules %}
+    <tr>
+      <th>{{ x.date|date:"n月j日(D)" }} </th>
+      {% for xx in x.q %}
+      <td>{{xx}}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  (function($){
+      $("#id_prev").click(function() {
+	  $("#id__form_umsnavi").attr("action", "{% url apptag month_prev.year month_prev.month %}");
+      })
+      $("#id_next").click(function() {
+	  $("#id__form_umsnavi").attr("action", "{% url apptag month_next.year month_next.month %}");
+      })
+      $("#id_today").click(function() {
+	  $("#id__form_umsnavi").attr("action", "{% url apptag %}");
+      })
+  })(jQuery);
+</script>
+{% endblock %}

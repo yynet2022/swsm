@@ -9,7 +9,7 @@
     <form method="POST" action="{% url 'swsm:workstatus' %}">
       {% csrf_token %}
       <div class="input-group">
-      <input name="next" type="hidden" value="{{ request.path }}">
+      <input name="next" type="hidden" value="{{ request.get_full_path }}">
       {% if not user.workstatus or user.workstatus.status == 0 %}
       <button type="submit" class="btn btn-primary text-nowrap p-1"
 	      name="workstatus" value="in">勤務開始</button>

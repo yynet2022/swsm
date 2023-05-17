@@ -23,6 +23,11 @@ urlpatterns = [
     path('monthschedules/<eid>/<int:year>/<int:month>/',
          views.MonthSchedulesEID.as_view(), name='monthschedules_eid'),
 
+    path('usersmonthschedules/',
+         views.UsersMonthSchedulesView.as_view(), name='usersmonthschedules'),
+    path('usersmonthschedules/<int:year>/<int:month>/',
+         views.UsersMonthSchedulesView.as_view(), name='usersmonthschedules'),
+
     path('login/',
          views.InputAddress.as_view(), name='inputaddress'),
     path('login/done',
