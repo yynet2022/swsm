@@ -81,7 +81,9 @@ class UsersMonthSchedulesView(generic.TemplateView):
         for x in s:
             del qdict[x]
 
-        qlist = qdict.values()
+        qlist = sorted(qdict.values(),
+                       key=lambda x: (x['favorite'],
+                                      x['user'].get_short_name()))
 
         ct = CalendarTools(self.request, *self.args, **self.kwargs)
         target_date = ct.target_date
