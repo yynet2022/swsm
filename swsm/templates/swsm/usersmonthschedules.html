@@ -70,35 +70,51 @@
 </div>
 <div class="w-100"></div>
 
-<table class="table table-sm">
+<div class="table-responsive table-view-area">
+<table class="table table-success table-striped table-sm">
   <thead>
     <tr>
       <th></th>
       {% for q in qlist %}
-      <td><a href="{% url 'swsm:monthschedules_eid' q.user.get_eid %}">
+      <th class="th-top-sticky text-nowrap">
+	<a href="{% url 'swsm:monthschedules_eid' q.user.get_eid %}">
 	  {% if q.user.usersetting.nickname %}
 	  {{ q.user.usersetting.nickname }}
 	  {% else %}
 	  {{ q.user.get_short_name }}
 	  {% endif %}
-      </a></td>
+      </a></th>
       {% endfor %}
     </tr>
   </thead>
   <tbody>
     {% for x in mday_schedules %}
     <tr>
-      <th>{{ x.date|date:"n月j日(D)" }} </th>
+      <th class="th-left-sticky text-nowrap">{{ x.date|date:"n月j日(D)" }}</th>
       {% for xx in x.q %}
-      <td>{{xx}}</td>
+      <td class="text-nowrap">{{xx}}</td>
       {% endfor %}
     </tr>
     {% endfor %}
   </tbody>
 </table>
+</div>
 {% endblock %}
 
 {% block extrajs %}
+<style>
+  .table-view-area {
+      height: 80vh;
+  }
+  .th-top-sticky {
+      position: sticky;
+      top: 0;
+  }
+  .th-left-sticky {
+      position: sticky;
+      left: 0;
+  }
+</style>
 <script>
   (function($){
       $("#id_prev").click(function() {

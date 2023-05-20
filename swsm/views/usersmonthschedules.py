@@ -69,8 +69,9 @@ class UsersMonthSchedulesView(generic.TemplateView):
             i = 10
             for g in u.favoritegroup_set.all().order_by('name').reverse():
                 for gu in g.favoritegroupuser_set.all():
-                    qdict[gu.member.pk]['favorite'] = i
+                    qdict[gu.member.pk]['favorite'] = -i
                 i += 1
+            qdict[u.pk]['favorite'] = -i
         except Exception:
             pass
 
