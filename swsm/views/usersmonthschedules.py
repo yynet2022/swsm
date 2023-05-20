@@ -62,25 +62,20 @@ class UsersMonthSchedulesView(generic.TemplateView):
 
         qdict = {}
         for u in User.objects.all():
-            qdict[u.pk] = {'user': u, 'favorite': 0, }
+            if u.is_active:
+                qdict[u.pk] = {'user': u, 'favorite': 0, }
 
         try:
             u = self.request.user
             i = 10
             for g in u.favoritegroup_set.all().order_by('name').reverse():
                 for gu in g.favoritegroupuser_set.all():
-                    qdict[gu.member.pk]['favorite'] = -i
+                    if gu.member.is_active:
+                        qdict[gu.member.pk]['favorite'] = -i
                 i += 1
-            qdict[u.pk]['favorite'] = -i
+            qdict[u.pk] = {'user': u, 'favorite': -i, }
         except Exception:
             pass
-
-        s = []
-        for x in qdict.keys():
-            if not qdict[x]['user'].is_active:
-                s.append(x)
-        for x in s:
-            del qdict[x]
 
         qlist = sorted(qdict.values(),
                        key=lambda x: (x['favorite'],
