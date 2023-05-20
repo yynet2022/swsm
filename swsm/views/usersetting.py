@@ -107,7 +107,7 @@ def usersetting_favoritegroup(request, *args, **kwargs):
         extra=5, can_delete=True,
     )
     formset = FavoriteGroupFormSet(request.POST or None, queryset=qs_org)
-    if request.method == 'POST' and formset.is_valid():
+    if request.method.lower() == 'post' and formset.is_valid():
         logger.info("> formset: valid: ok.")
         formset.save(commit=False)
 
@@ -134,7 +134,7 @@ def usersetting_favoritegroup(request, *args, **kwargs):
             request.user.usersetting.save()
         return redirect(AppConfig.name + ':usersetting_favoritegroup')
 
-    elif request.method == 'POST':
+    elif request.method.lower() == 'post':
         logger.error("usersetting_favoritegroup:")
         logger.error("formset.errors: %s", str(formset.errors))
 
@@ -195,7 +195,7 @@ def usersetting_worknotificationrecipient(request, *args, **kwargs):
     )
     formset = WorkNotificationRecipientFormSet(
         request.POST or None, queryset=qs_org)
-    if request.method == 'POST' and formset.is_valid():
+    if request.method.lower() == 'post' and formset.is_valid():
         logger.info("> formset: valid: ok.")
         formset.save(commit=False)
 
@@ -218,7 +218,7 @@ def usersetting_worknotificationrecipient(request, *args, **kwargs):
         return redirect(AppConfig.name +
                         ':usersetting_worknotificationrecipient')
 
-    elif request.method == 'POST':
+    elif request.method.lower() == 'post':
         logger.error("usersetting_worknotificationrecipient:")
         logger.error("formset.error: %s", str(formset.errors))
 

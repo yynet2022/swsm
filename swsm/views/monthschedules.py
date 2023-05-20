@@ -141,7 +141,7 @@ def month_schedules(request, *args, **kwargs):
     )
 
     submit_message = ""
-    if request.method == 'POST':
+    if request.method.lower() == 'post':
         post = {}
         for k in request.POST:
             # 日付について、datetime.date 型の値になるように調整

@@ -53,7 +53,7 @@ class UserSchedulesView(MonthCalendarMixin,
             del qdict[x]
 
         key = None
-        if self.request.method == "GET":
+        if self.request.method.lower() == 'get':
             key = self.request.GET.get('key', 'fr')
             logger.info("  key=%s", key)
 

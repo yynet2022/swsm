@@ -104,7 +104,7 @@ def user_log(request, *args, **kwargs):
     }
     extraform = UserLogExtraForm(request.POST or None,
                                  initial=extraform_initial)
-    if request.method == 'POST' and extraform.is_valid():
+    if request.method.lower() == 'post' and extraform.is_valid():
         if extraform.cleaned_data['check_work_start']:
             filterbits |= BIT_WORK_START
         else:
@@ -148,7 +148,7 @@ def user_log(request, *args, **kwargs):
     pobj = paginator.page(pnum)
     formset = UserLogFormset(request.POST or None, queryset=pobj.object_list)
 
-    if request.method == 'POST' and formset.is_valid():
+    if request.method.lower() == 'post' and formset.is_valid():
         logger.info("> formset: valid: ok.")
         formset.save(commit=False)
 
@@ -167,7 +167,7 @@ def user_log(request, *args, **kwargs):
         # 動作は、多少「あれ？」と思うこともあるだろうけど。
         return redirect(AppConfig.name + ':userlog',
                         filterbits=filterbits, page=pnum)
-    elif request.method == 'POST':  # ここも通らないハズ
+    elif request.method.lower() == 'post':  # ここも通らないハズ
         logger.error("> formset: not valid: %s" % formset.errors)
         logger.error("> formset: errors: %d" % formset.total_error_count())
         logger.error("> formset: form: %s" % formset.non_form_errors())

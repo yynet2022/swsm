@@ -101,7 +101,7 @@ def work_status(request, *args, **kwargs):
     logger.info(">    request.POST=%s", request.POST)
 
     next_url = AppConfig.name + ':home'
-    if request.method == 'POST':
+    if request.method.lower() == 'post':
         if request.user.is_authenticated:
             try:
                 submit = request.POST['workstatus']
