@@ -86,6 +86,10 @@ class UsersMonthSchedulesView(generic.TemplateView):
                        key=lambda x: (x['favorite'],
                                       x['user'].get_short_name()))
 
+        qdict = {}
+        for k, x in enumerate(qlist):
+            qdict[x['user'].pk] = k
+
         ct = CalendarTools(self.request, *self.args, **self.kwargs)
         target_date = ct.target_date
         ts = target_date.replace(day=1)
@@ -111,26 +115,28 @@ class UsersMonthSchedulesView(generic.TemplateView):
         def _get_mday_schedules():
             for i in range(ndays):
                 tt = target_date.replace(day=i+1)
-                a = ['' for x in range(len(qlist))]
-                qs0 = Schedule.objects.filter(date=tt).filter(q)
-                for k, u in enumerate(qlist):
-                    qs = qs0.filter(user=u['user'])
-                    if qs:
-                        s = ''
-                        if qs[0].vacation == 10:
-                            s = '休'
-                        elif qs[0].vacation == 20:
-                            s = 'A'
-                        elif qs[0].vacation == 30:
-                            s = 'P'
-                        if qs[0].vacation != 10:
-                            if qs[0].working == 10:
-                                s += '出'
-                            elif qs[0].working == 20:
-                                s += '部'
-                            elif qs[0].working == 30:
-                                s += '在'
-                        a[k] = s
+                a = [''] * len(qlist)
+                for x in Schedule.objects.filter(date=tt).filter(q):
+                    try:
+                        k = qdict[x.user.pk]
+                    except Exception:
+                        continue
+
+                    s = ''
+                    if x.vacation == 10:
+                        s = '休'
+                    elif x.vacation == 20:
+                        s = 'A'
+                    elif x.vacation == 30:
+                        s = 'P'
+                    if x.vacation != 10:
+                        if x.working == 10:
+                            s += '出'
+                        elif x.working == 20:
+                            s += '部'
+                        elif x.working == 30:
+                            s += '在'
+                    a[k] = s
                 yield {'date': tt, 'q': a}
 
         context = super().get_context_data(**kwargs)
