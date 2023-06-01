@@ -254,6 +254,8 @@ class MonthSchedulesEID(generic.FormView):
                     pass
 
                 for u in g.favoritegroupuser_set.all().order_by('created_at'):
+                    if not u.member.is_active:
+                        continue
                     p = {'user': u.member,
                          'eid': u.get_eid(),
                          }
