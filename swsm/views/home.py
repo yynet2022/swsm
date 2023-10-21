@@ -33,7 +33,8 @@ class HomeView(MonthCalendarMixin,
                 x = {'name': g.name,
                      'members': [], }
                 for gu in g.favoritegroupuser_set.all().order_by('created_at'):
-                    x['members'].append({'user': gu.member, })
+                    if gu.member.is_active:
+                        x['members'].append({'user': gu.member, })
                 fav_infos.append(x)
         except Exception:
             pass

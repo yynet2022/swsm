@@ -274,9 +274,13 @@ class MonthSchedulesEID(generic.FormView):
         return fav_infos
 
     def get_form(self):
+        target_user = self.get_target_user()
+        if target_user and not target_user.is_active:
+            return None
         fav_infos = self.get_fav_infos()
         choices = []
         for x in fav_infos:
+            print(x)
             if x['has_target_user']:
                 choices.append(('del-'+x['op_eid'], x['name']+'から削除'))
             else:
