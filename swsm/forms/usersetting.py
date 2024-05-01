@@ -12,7 +12,8 @@ class UserSettingForm(forms.ModelForm):
                   'ls_time', 'le_time',
                   'working_at',
                   'rows_description',
-                  'show_weekend', 'show_month_calendar')
+                  'show_weekend', 'show_month_calendar',
+                  'wnr_subject')
         widgets = {
             'nickname': forms.TextInput(
                 attrs={'class': 'form-control', }),
@@ -35,6 +36,8 @@ class UserSettingForm(forms.ModelForm):
                 attrs={'class': 'form-check-input', }),
             'show_month_calendar': forms.CheckboxInput(
                 attrs={'class': 'form-check-input', }),
+            'wnr_subject': forms.TextInput(
+                attrs={'class': 'form-control', }),
         }
         help_texts = {
             'nickname': _('表示名として使用。日本語(漢字・ひらがな等)だと判り易いかと'),
@@ -46,4 +49,5 @@ class UserSettingForm(forms.ModelForm):
             'rows_description': _('3以上、15以下'),
             'show_weekend': _('スケジュール(週)に土曜日・日曜日を表示するか'),
             'show_month_calendar': _('スケジュールを月表示にするか'),
+            'wnr_subject': _('デフォルトのままを推奨'),
         }

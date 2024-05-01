@@ -125,6 +125,7 @@ def work_status(request, *args, **kwargs):
                 workstatus = WorkStatus.objects.create(user=request.user)
 
             title = None
+            wnr_subs = request.user.usersetting.wnr_subject
             if submit == "in":
                 logger.info("> workstatus to IN")
                 ws = workstatus.status
@@ -133,8 +134,10 @@ def work_status(request, *args, **kwargs):
                 workstatus.save()
                 if ws == 20:
                     title = "勤務再開"
+                    wnr_subs = wnr_subs.replace('#s#', '再開')
                 else:
                     title = "勤務開始"
+                    wnr_subs = wnr_subs.replace('#s#', '開始')
 
             elif submit == "stop":
                 logger.info("> workstatus to STOP")
@@ -142,6 +145,7 @@ def work_status(request, *args, **kwargs):
                 workstatus.update_at = timezone.now()
                 workstatus.save()
                 title = "勤務中断"
+                wnr_subs = wnr_subs.replace('#s#', '中断')
 
             elif submit == "out":
                 logger.info("> workstatus to OUT")
@@ -149,6 +153,7 @@ def work_status(request, *args, **kwargs):
                 workstatus.update_at = timezone.now()
                 workstatus.save()
                 title = "勤務終了"
+                wnr_subs = wnr_subs.replace('#s#', '終了')
 
             to_addr = []
             if title is not None:
@@ -187,14 +192,18 @@ def work_status(request, *args, **kwargs):
                     'from_addr': settings.DEFAULT_FROM_EMAIL,
                     'REMOTE_ADDR': request.META.get('REMOTE_ADDR'),
                 }
+                wnr_subs = wnr_subs.replace('#n#', myname)
                 try:
+                    '''
                     subject = render_to_string(
                         AppConfig.name + '/mail/wnr_subject.txt',
                         context).strip()
+                    '''
                     message = render_to_string(
                         AppConfig.name + '/mail/wnr_message.txt', context)
+                    logger.info("> subject:%s", wnr_subs)
                     logger.info("> message:[%s]", message)
-                    send_mail(subject, message, request.user.email, to_addr)
+                    send_mail(wnr_subs, message, request.user.email, to_addr)
                 except Exception as e:
                     logger.error(" In work_status: error: %s", str(e))
                     return render(request,

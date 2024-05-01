@@ -42,6 +42,9 @@ class UserSetting(models.Model):
 
     show_month_calendar = models.BooleanField('スケジュール(月)の表示', default=False)
 
+    wnr_subject = models.CharField('勤務状態メールのサブジェクト',
+                                   max_length=64, default='[勤務#s#] #n#')
+
     def __str__(self):
         try:
             u = str(self.user.email)
