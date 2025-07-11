@@ -5,8 +5,8 @@ all:
 	python manage.py migrate --no-color
 
 check:
-	flake8 euser/ | grep -v /migrations/ || true
-	flake8 swsm/ | grep -v /migrations/ || true
+	flake8 --exclude migrations euser/ || true
+	flake8 --exclude migrations swsm/  || true
 
 clean:
 	rm -f db.sqlite3 

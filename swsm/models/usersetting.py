@@ -42,6 +42,8 @@ class UserSetting(models.Model):
 
     show_month_calendar = models.BooleanField('スケジュール(月)の表示', default=False)
 
+    show_favorite_users_only = models.BooleanField('お気に入りだけ表示', default=False)
+
     wnr_subject = models.CharField('勤務状態メールのサブジェクト',
                                    max_length=64, default='[勤務#s#] #n#')
 
@@ -59,14 +61,15 @@ class UserSetting(models.Model):
             "working_at=%d," + \
             "s_time=%s,e_time=%s," + \
             "ls_time=%s,le_time=%s," + \
-            "fg_primary=%s,show_month=%s>"
+            "fg_primary=%s,show_month=%s,show_fav_users=%s>"
         return s % (u, self.nickname,
                     str(self.show_weekend), self.rows_description,
                     self.working_at,
                     str(self.s_time), str(self.e_time),
                     str(self.ls_time), str(self.le_time),
                     f,
-                    str(self.show_month_calendar))
+                    str(self.show_month_calendar),
+                    str(self.show_favorite_users_only))
 
     def get_itemlist(self):
         try:
@@ -83,7 +86,8 @@ class UserSetting(models.Model):
                 self.s_time, self.e_time,
                 self.ls_time, self.le_time,
                 f,
-                self.show_month_calendar)
+                self.show_month_calendar,
+                self.show_favorite_users_only)
 
 
 def get_usersetting_object(user):

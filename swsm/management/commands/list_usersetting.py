@@ -24,6 +24,7 @@ class Command(MyBaseCommand):
         le_time = datetime.time.fromisoformat(le)
         favorite_group_primary = None
         show_month_calendar = _strtobool(m)
+        show_favorite_users_only = _strtobool(m)
 
         if f_name:
             try:
@@ -68,6 +69,9 @@ class Command(MyBaseCommand):
             if x.show_month_calendar != show_month_calendar:
                 x.show_month_calendar = show_month_calendar
                 changed = True
+            if x.show_favorite_users_only != show_favorite_users_only:
+                x.show_favorite_users_only = show_favorite_users_only
+                changed = True
 
             self.do_update(x, commit, changed)
         except ObjectDoesNotExist:
@@ -77,7 +81,8 @@ class Command(MyBaseCommand):
                            working_at=working_at,
                            s_time=s_time, e_time=e_time,
                            ls_time=ls_time, le_time=le_time,
-                           show_month_calendar=show_month_calendar)
+                           show_month_calendar=show_month_calendar,
+                           show_favorite_users_only=show_favorite_users_only)
             if favorite_group_primary is not None:
                 x.favorite_group_primary = favorite_group_primary
 

@@ -45,9 +45,12 @@ class UserSchedulesView(MonthCalendarMixin,
         if self.request.user.is_authenticated:
             del qdict[self.request.user.pk]
 
+        only_fav = self.request.user.usersetting.show_favorite_users_only
         s = []
         for x in qdict.keys():
             if not qdict[x]['user'].is_active:
+                s.append(x)
+            elif only_fav and qdict[x]['favorite'] == 0:
                 s.append(x)
         for x in s:
             del qdict[x]
