@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db.utils import IntegrityError
 from ..apps import AppConfig
 from ..forms import UserSettingForm
 from ..models import (UserSetting, get_usersetting_object,
@@ -124,8 +125,12 @@ def usersetting_favoritegroup(request, *args, **kwargs):
                 # そんなに多くないだろうから bulk_create() は使わない。
                 # 一旦消去してから作り直すことをすると、
                 # 関連する FavoriteGroupUser が削除されてしまうので注意。
+            except IntegrityError as e:
+                form.add_error(None, "同じ名前のグループが既に存在します。")
+                logger.error("save(): IntegrityError: %s", str(e))
             except Exception as e:
-                logger.error("save(): %s: %s", type(e), str(e))
+                logger.error("save(): Unexpected Exception: %s: %s",
+                             type(e), str(e))
 
         # もし全部消してしまったら作るし、登録する。
         x = get_favoritegroup_object(request.user)
@@ -212,8 +217,12 @@ def usersetting_worknotificationrecipient(request, *args, **kwargs):
                 # そんなに多くないだろうから bulk_create() は使わない。
                 # 一旦消去してから作り直すことをすると、
                 #  ... 別に構わない、かな？
+            except IntegrityError as e:
+                form.add_error(None, "同じメアドでは作成できません。")
+                logger.error("save(): IntegrityError: %s", str(e))
             except Exception as e:
-                logger.error("save(): %s: %s", type(e), str(e))
+                logger.error("save(): Unexpected Exception: %s: %s",
+                             type(e), str(e))
 
         return redirect(AppConfig.name +
                         ':usersetting_worknotificationrecipient')

@@ -21,6 +21,7 @@ class HomeViewTests(TestCase):
             password="password123"
         )
         self.today = datetime.date.today()
+        self.client.force_login(self.user)  # Added force_login
 
     def test_home_view_url_resolves(self):
         """
@@ -40,6 +41,7 @@ class HomeViewTests(TestCase):
         """
         未認証ユーザーのコンテキストデータが正しいかテスト。
         """
+        self.client.logout()  # Logout to test unauthenticated user
         response = self.client.get(reverse('swsm:home'))
         self.assertIn('today', response.context)
         self.assertIn('date', response.context)
@@ -52,7 +54,9 @@ class HomeViewTests(TestCase):
         """
         認証済みユーザーのコンテキストデータが正しいかテスト。
         """
-        self.client.login(email="test@example.com", password="password123")
+        # Removed
+        # self.client.login(email="test@example.com", password="password123")
+
         response = self.client.get(reverse('swsm:home'))
         self.assertIn('today', response.context)
         self.assertIn('date', response.context)
@@ -65,9 +69,16 @@ class HomeViewTests(TestCase):
         """
         認証済みユーザーがスケジュールを追加できるかテスト。
         """
-        self.client.login(email="test@example.com", password="password123")
+        # Removed
+        # self.client.login(email="test@example.com", password="password123")
         response = self.client.post(reverse('swsm:home'), {
             'date': self.today,
+            'vacation': 0,  # Default value
+            'working': 10,  # Default value
+            'ws_time': '09:00',
+            'we_time': '17:00',
+            'zs_time': '09:00',
+            'ze_time': '17:00',
             'description': 'New schedule',
             'sch_submit': 'add'
         })
@@ -83,9 +94,16 @@ class HomeViewTests(TestCase):
         """
         Schedule.objects.create(user=self.user, date=self.today,
                                 description='Old schedule')
-        self.client.login(email="test@example.com", password="password123")
+        # Removed
+        # self.client.login(email="test@example.com", password="password123")
         response = self.client.post(reverse('swsm:home'), {
             'date': self.today,
+            'vacation': 0,  # Default value
+            'working': 10,  # Default value
+            'ws_time': '09:00',
+            'we_time': '17:00',
+            'zs_time': '09:00',
+            'ze_time': '17:00',
             'description': 'Updated schedule',
             'sch_submit': 'add'  # 'add' is used for both add and update
         })
@@ -103,9 +121,16 @@ class HomeViewTests(TestCase):
         """
         Schedule.objects.create(user=self.user, date=self.today,
                                 description='Schedule to delete')
-        self.client.login(email="test@example.com", password="password123")
+        # Removed
+        # self.client.login(email="test@example.com", password="password123")
         response = self.client.post(reverse('swsm:home'), {
             'date': self.today,
+            'vacation': 0,  # Default value
+            'working': 10,  # Default value
+            'ws_time': '09:00',
+            'we_time': '17:00',
+            'zs_time': '09:00',
+            'ze_time': '17:00',
             'sch_submit': 'del'
         })
         self.assertEqual(response.status_code, 302)
@@ -117,6 +142,7 @@ class HomeViewTests(TestCase):
         """
         未認証ユーザーがスケジュール操作を試みた場合に PermissionDenied が発生するかテスト。
         """
+        self.client.logout()  # Logout to test unauthenticated user
         response = self.client.post(reverse('swsm:home'), {
             'date': self.today,
             'description': 'New schedule',
