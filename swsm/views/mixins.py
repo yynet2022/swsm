@@ -82,7 +82,17 @@ class MonthCalendarMixin(BaseCalendarMixin):
             return date.replace(month=date.month+1, day=1)
 
     def get_month_days(self, date):
-        return self.calendar.monthdatescalendar(date.year, date.month)
+        # return self.calendar.monthdatescalendar(date.year, date.month)
+        w = self.calendar.monthdatescalendar(date.year, date.month)
+        wp = []
+        if w[0][0].month == date.month:
+            a = w[0][0] - datetime.timedelta(days=7)
+            wp = [a + datetime.timedelta(days=i) for i in range(7)]
+        wn = []
+        if w[-1][-1].month == date.month:
+            b = w[-1][-1] + datetime.timedelta(days=1)
+            wn = [b + datetime.timedelta(days=i) for i in range(7)]
+        return [wp] + w + [wn]
 
     def get_month_calendar(self, date):
         current_month = date.replace(day=1)
