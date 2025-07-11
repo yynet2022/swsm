@@ -3,7 +3,10 @@ import datetime
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
-from swsm.models import Schedule, Holiday, Information, UserSetting, WorkStatus, FavoriteGroup, FavoriteGroupUser, UserLog, WorkNotificationRecipient
+from swsm.models import (
+    Schedule, Holiday, Information, UserSetting, WorkStatus,
+    FavoriteGroup, FavoriteGroupUser, UserLog, WorkNotificationRecipient
+)
 
 User = get_user_model()
 
@@ -103,7 +106,8 @@ class UserSettingModelTests(TestCase):
         """
         UserSetting オブジェクトが正しく作成されるか確認。
         """
-        setting = UserSetting.objects.create(user=self.user, nickname="test_user")
+        setting = UserSetting.objects.create(
+            user=self.user, nickname="test_user")
         self.assertEqual(setting.user, self.user)
         self.assertEqual(setting.nickname, "test_user")
 
@@ -169,14 +173,21 @@ class FavoriteGroupModelTests(TestCase):
         """
         テストに必要なユーザーを作成
         """
-        self.user1 = User.objects.create_user(email="test1@example.com", password="password123")
-        self.user2 = User.objects.create_user(email="test2@example.com", password="password123")
+        self.user1 = User.objects.create_user(
+            email="test1@example.com",
+            password="password123"
+        )
+        self.user2 = User.objects.create_user(
+            email="test2@example.com",
+            password="password123"
+        )
 
     def test_create_favorite_group(self):
         """
         FavoriteGroup オブジェクトが正しく作成されるか確認。
         """
-        group = FavoriteGroup.objects.create(user=self.user1, name="Test Group")
+        group = FavoriteGroup.objects.create(
+            user=self.user1, name="Test Group")
         self.assertEqual(group.user, self.user1)
         self.assertEqual(group.name, "Test Group")
 
@@ -185,16 +196,21 @@ class FavoriteGroupModelTests(TestCase):
         同じユーザーが同じ名前のグループを作成しようとすると
         IntegrityError が発生するか確認。
         """
-        FavoriteGroup.objects.create(user=self.user1, name="Test Group")
+        FavoriteGroup.objects.create(
+            user=self.user1, name="Test Group")
         with self.assertRaises(IntegrityError):
-            FavoriteGroup.objects.create(user=self.user1, name="Test Group")
+            FavoriteGroup.objects.create(
+                user=self.user1, name="Test Group")
 
     def test_create_favorite_group_user(self):
         """
         FavoriteGroupUser オブジェクトが正しく作成されるか確認。
         """
-        group = FavoriteGroup.objects.create(user=self.user1, name="Test Group")
-        group_user = FavoriteGroupUser.objects.create(favorite_group=group, member=self.user2)
+        group = FavoriteGroup.objects.create(
+            user=self.user1, name="Test Group")
+        group_user = FavoriteGroupUser.objects.create(
+            favorite_group=group,
+            member=self.user2)
         self.assertEqual(group_user.favorite_group, group)
         self.assertEqual(group_user.member, self.user2)
 
@@ -203,10 +219,17 @@ class FavoriteGroupModelTests(TestCase):
         同じグループに同じメンバーを登録しようとすると
         IntegrityError が発生するか確認。
         """
-        group = FavoriteGroup.objects.create(user=self.user1, name="Test Group")
-        FavoriteGroupUser.objects.create(favorite_group=group, member=self.user2)
+        group = FavoriteGroup.objects.create(
+            user=self.user1, name="Test Group")
+        FavoriteGroupUser.objects.create(
+            favorite_group=group,
+            member=self.user2
+        )
         with self.assertRaises(IntegrityError):
-            FavoriteGroupUser.objects.create(favorite_group=group, member=self.user2)
+            FavoriteGroupUser.objects.create(
+                favorite_group=group,
+                member=self.user2
+            )
 
 
 class UserLogModelTests(TestCase):
@@ -224,7 +247,8 @@ class UserLogModelTests(TestCase):
         """
         UserLog オブジェクトが正しく作成されるか確認。
         """
-        log = UserLog.objects.create(user=self.user, message="Test Log Message")
+        log = UserLog.objects.create(
+            user=self.user, message="Test Log Message")
         self.assertEqual(log.user, self.user)
         self.assertEqual(log.message, "Test Log Message")
 
