@@ -5,6 +5,7 @@ from django.views import generic
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.utils import IntegrityError
+from django.db import transaction
 from ..apps import AppConfig
 from ..forms import UserSettingForm
 from ..models import (UserSetting, get_usersetting_object,
@@ -89,6 +90,7 @@ class FavoriteGroupBaseModelFormSet(forms.BaseModelFormSet):
                 continue
             if name in names:
                 err = '同じ名前では作成できません。: ' + name
+                # form.add_error('name', err)
                 raise ValidationError(err)
             names.append(name)
 
@@ -121,28 +123,33 @@ def usersetting_favoritegroup(request, *args, **kwargs):
             logger.info(" Delete: %s", x)
             x.delete()
 
+        has_error = False
         for form in formset.saved_forms:
             q = form.instance
             q.user = request.user
             logger.info(" Update: %s", q)
             try:
-                q.save()
+                with transaction.atomic():
+                    q.save()
                 # そんなに多くないだろうから bulk_create() は使わない。
                 # 一旦消去してから作り直すことをすると、
                 # 関連する FavoriteGroupUser が削除されてしまうので注意。
             except IntegrityError as e:
                 form.add_error(None, "同じ名前のグループが既に存在します。")
                 logger.error("save(): IntegrityError: %s", str(e))
+                has_error = True
             except Exception as e:
                 logger.error("save(): Unexpected Exception: %s: %s",
                              type(e), str(e))
+                has_error = True
 
         # もし全部消してしまったら作るし、登録する。
         x = get_favoritegroup_object(request.user)
         if request.user.usersetting.favorite_group_primary is None:
             request.user.usersetting.favorite_group_primary = x
             request.user.usersetting.save()
-        return redirect(AppConfig.name + ':usersetting_favoritegroup')
+        if not has_error:
+            return redirect(AppConfig.name + ':usersetting_favoritegroup')
 
     elif request.method.lower() == 'post':
         logger.error("usersetting_favoritegroup:")
@@ -213,24 +220,29 @@ def usersetting_worknotificationrecipient(request, *args, **kwargs):
             logger.info(" Delete: %s", x)
             x.delete()
 
+        has_error = False
         for form in formset.saved_forms:
             q = form.instance
             q.user = request.user
             logger.info(" Update: %s", q)
             try:
-                q.save()
+                with transaction.atomic():
+                    q.save()
                 # そんなに多くないだろうから bulk_create() は使わない。
                 # 一旦消去してから作り直すことをすると、
                 #  ... 別に構わない、かな？
             except IntegrityError as e:
                 form.add_error(None, "同じメアドでは作成できません。")
                 logger.error("save(): IntegrityError: %s", str(e))
+                has_error = True
             except Exception as e:
                 logger.error("save(): Unexpected Exception: %s: %s",
                              type(e), str(e))
+                has_error = True
 
-        return redirect(AppConfig.name +
-                        ':usersetting_worknotificationrecipient')
+        if not has_error:
+            return redirect(AppConfig.name +
+                            ':usersetting_worknotificationrecipient')
 
     elif request.method.lower() == 'post':
         logger.error("usersetting_worknotificationrecipient:")

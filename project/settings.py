@@ -152,7 +152,7 @@ LOGGING = {
         },
         'swsm': {
             'handlers': ['console'],
-            'level': 'INFO',  # Temporarily set to INFO for debugging
+            'level': 'WARNING',  # Set to WARNING for production
             'propagate': False,
         },
     },
