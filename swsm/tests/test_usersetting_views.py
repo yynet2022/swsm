@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -6,10 +7,23 @@ from swsm.models import (
     UserSetting, FavoriteGroup, WorkNotificationRecipient
 )
 
+
 User = get_user_model()
 
 
 class UserSettingViewTests(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.logger = logging.getLogger('django.request')
+        cls.original_level = cls.logger.level
+        cls.logger.setLevel(logging.ERROR)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.logger.setLevel(cls.original_level)
+        super().tearDownClass()
 
     def setUp(self):
         self.client = Client()
@@ -39,11 +53,9 @@ class UserSettingViewTests(TestCase):
         未認証ユーザーが UserSettingView にアクセスした場合に
         PermissionDenied が発生するかテスト。
         """
-        """yyy
-        self.client.logout() # ログアウトして未認証状態にする
+        self.client.logout()  # ログアウトして未認証状態にする
         response = self.client.get(reverse('swsm:usersetting'))
         self.assertEqual(response.status_code, 403)  # Changed from 302 to 403
-        """
 
     def test_usersetting_update(self):
         """
@@ -64,6 +76,18 @@ class UserSettingViewTests(TestCase):
 
 
 class FavoriteGroupViewTests(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.logger = logging.getLogger('django.request')
+        cls.original_level = cls.logger.level
+        cls.logger.setLevel(logging.ERROR)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.logger.setLevel(cls.original_level)
+        super().tearDownClass()
 
     def setUp(self):
         self.client = Client()
@@ -97,12 +121,10 @@ class FavoriteGroupViewTests(TestCase):
         未認証ユーザーがお気に入りグループ設定にアクセスした場合に
         PermissionDenied が発生するかテスト。
         """
-        """yyy
-        self.client.logout() # ログアウトして未認証状態にする
+        self.client.logout()  # ログアウトして未認証状態にする
         url = reverse('swsm:usersetting_favoritegroup')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)  # Changed from 302 to 403
-        """
 
     def test_favorite_group_add(self):
         """
@@ -146,6 +168,18 @@ class FavoriteGroupViewTests(TestCase):
 
 class WorkNotificationRecipientViewTests(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.logger = logging.getLogger('django.request')
+        cls.original_level = cls.logger.level
+        cls.logger.setLevel(logging.ERROR)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.logger.setLevel(cls.original_level)
+        super().tearDownClass()
+
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
@@ -177,12 +211,10 @@ class WorkNotificationRecipientViewTests(TestCase):
         未認証ユーザーが勤務通知先設定にアクセスした場合に
         PermissionDenied が発生するかテスト。
         """
-        """yyy
-        self.client.logout() # ログアウトして未認証状態にする
+        self.client.logout()  # ログアウトして未認証状態にする
         url = reverse('swsm:usersetting_worknotificationrecipient')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)  # Changed from 302 to 403
-        """
 
     def test_work_notification_recipient_add(self):
         """
