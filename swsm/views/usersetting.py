@@ -14,7 +14,6 @@ from ..models import (UserSetting, get_usersetting_object,
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
-# logger.setLevel(logging.INFO)
 
 User = get_user_model()
 
@@ -45,9 +44,12 @@ class UserSettingView(generic.UpdateView):
         logger.info("> form_valid: submit=%s", submit)
         logger.info("  .object: %s", self.object)
         logger.info("  .user: %s", self.request.user)
+        logger.info("  .form.is_valid(): %s", form.is_valid())
+        logger.info("  .form.has_changed(): %s", form.has_changed())
+        logger.info("  .form.cleaned_data: %s", form.cleaned_data)
 
         if submit == "ok":
-            if form.has_changed() and self.request.user.is_authenticated:
+            if form.is_valid() and form.has_changed() and self.request.user.is_authenticated:
                 obj = form.save(commit=False)
                 obj.user = self.request.user
                 if not obj.favorite_group_primary:
@@ -56,6 +58,9 @@ class UserSettingView(generic.UpdateView):
                         get_favoritegroup_object(self.request.user)
                 logger.info(" Update: %s", obj)
                 obj.save()
+            else:
+                logger.info("  .form_valid: not saving. is_valid=%s, has_changed=%s, is_authenticated=%s",
+                            form.is_valid(), form.has_changed(), self.request.user.is_authenticated)
 
         return redirect(AppConfig.name + ':home')
 

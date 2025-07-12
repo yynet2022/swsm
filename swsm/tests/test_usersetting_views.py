@@ -61,18 +61,51 @@ class UserSettingViewTests(TestCase):
         """
         ユーザー設定が正しく更新されるかテスト。
         """
-        """yyy
         response = self.client.post(reverse('swsm:usersetting'), {
             'nickname': 'Updated Nickname',
             'rows_description': 10,
+            's_time': '08:30',
+            'e_time': '17:15',
+            'ls_time': '12:15',
+            'le_time': '13:15',
+            'working_at': 10,
+            'show_weekend': False,
+            'show_month_calendar': False,
+            'show_favorite_users_only': False,
+            'wnr_subject': '[勤務#s#] #n#',
             'us_submit': 'ok'
         })
         # Redirects after successful POST
-        self.assertEqual(response.status_code, 200) # Changed from 200 to 302
+        self.assertEqual(response.status_code, 302) # Changed from 200 to 302
         self.usersetting.refresh_from_db()
         self.assertEqual(self.usersetting.nickname, 'Updated Nickname')
         self.assertEqual(self.usersetting.rows_description, 10)
+
+    def test_usersetting_update_missing_required_field(self):
         """
+        必須フィールドが不足している場合に、フォームが無効になり、
+        ステータスコード200でフォームが再表示されるかテスト。
+        """
+        # s_time を意図的に省略
+        response = self.client.post(reverse('swsm:usersetting'), {
+            'nickname': 'Updated Nickname',
+            'rows_description': 10,
+            # 's_time': '08:30',  # このフィールドを省略
+            'e_time': '17:15',
+            'ls_time': '12:15',
+            'le_time': '13:15',
+            'working_at': 10,
+            'show_weekend': False,
+            'show_month_calendar': False,
+            'show_favorite_users_only': False,
+            'wnr_subject': '[勤務#s#] #n#',
+            'us_submit': 'ok'
+        })
+        self.assertEqual(response.status_code, 200)  # バリデーションエラーでフォームが再表示されるため
+        self.assertIn('form', response.context)
+        self.assertFalse(response.context['form'].is_valid())
+        self.assertIn('s_time', response.context['form'].errors)
+        self.assertContains(response, 'このフィールドは必須です。')
 
 
 class FavoriteGroupViewTests(TestCase):

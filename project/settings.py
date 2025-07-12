@@ -150,6 +150,11 @@ LOGGING = {
             'level': 'WARNING',  # Set to WARNING for production
             'propagate': False,
         },
+        'swsm': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Temporarily set to INFO for debugging
+            'propagate': False,
+        },
     },
 }
 
