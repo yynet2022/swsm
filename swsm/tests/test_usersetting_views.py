@@ -76,7 +76,7 @@ class UserSettingViewTests(TestCase):
             'us_submit': 'ok'
         })
         # Redirects after successful POST
-        self.assertEqual(response.status_code, 302) # Changed from 200 to 302
+        self.assertEqual(response.status_code, 302)  # Changed from 200 to 302
         self.usersetting.refresh_from_db()
         self.assertEqual(self.usersetting.nickname, 'Updated Nickname')
         self.assertEqual(self.usersetting.rows_description, 10)
@@ -182,20 +182,22 @@ class FavoriteGroupViewTests(TestCase):
         同じ名前のお気に入りグループを追加しようとした場合に
         エラーが発生するかテスト。
         """
-        ###yyy
         FavoriteGroup.objects.create(user=self.user, name='Existing Group')
         url = reverse('swsm:usersetting_favoritegroup')
         response = self.client.post(url, {
-            'form-TOTAL_FORMS': 1,
+            'form-TOTAL_FORMS': 2,
             'form-INITIAL_FORMS': 0,
             'form-MIN_NUM_FORMS': 0,
             'form-MAX_NUM_FORMS': 1000,
             'form-0-name': 'Existing Group',
             'form-0-user': self.user.pk,
+            'form-1-name': 'Existing Group',
+            'form-1-user': self.user.pk,
         })
         # Should not redirect on form error
         self.assertEqual(response.status_code, 200)
-        # self.assertContains(response, '同じ名前では作成できません。')
+        # print(response.content.decode('utf-8'))
+        self.assertContains(response, '同じ名前では作成できません。')
 
 
 class WorkNotificationRecipientViewTests(TestCase):
@@ -271,17 +273,18 @@ class WorkNotificationRecipientViewTests(TestCase):
         同じメールアドレスの勤務通知先を追加しようとした場合に
         エラーが発生するかテスト。
         """
-        ###yyy
         WorkNotificationRecipient.objects.create(
             user=self.user, recipient='existing@example.com')
         url = reverse('swsm:usersetting_worknotificationrecipient')
         response = self.client.post(url, {
-            'form-TOTAL_FORMS': 1,
+            'form-TOTAL_FORMS': 2,
             'form-INITIAL_FORMS': 0,
             'form-MIN_NUM_FORMS': 0,
             'form-MAX_NUM_FORMS': 1000,
             'form-0-recipient': 'existing@example.com',
             'form-0-user': self.user.pk,
+            'form-1-recipient': 'existing@example.com',
+            'form-1-user': self.user.pk,
         })
         self.assertEqual(response.status_code, 200)
-        # self.assertContains(response, '同じメアドでは作成できません。')
+        self.assertContains(response, '同じメアドでは作成できません。')

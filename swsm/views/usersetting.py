@@ -50,7 +50,8 @@ class UserSettingView(generic.UpdateView):
         logger.info("  .form.cleaned_data: %s", form.cleaned_data)
 
         if submit == "ok":
-            if form.is_valid() and form.has_changed() and self.request.user.is_authenticated:
+            if form.is_valid() and form.has_changed() and \
+               self.request.user.is_authenticated:
                 obj = form.save(commit=False)
                 obj.user = self.request.user
                 if not obj.favorite_group_primary:
@@ -60,8 +61,11 @@ class UserSettingView(generic.UpdateView):
                 logger.info(" Update: %s", obj)
                 obj.save()
             else:
-                logger.info("  .form_valid: not saving. is_valid=%s, has_changed=%s, is_authenticated=%s",
-                            form.is_valid(), form.has_changed(), self.request.user.is_authenticated)
+                logger.info(
+                    "  .form_valid: not saving. "
+                    "is_valid=%s, has_changed=%s, is_authenticated=%s",
+                    form.is_valid(), form.has_changed(),
+                    self.request.user.is_authenticated)
 
         return redirect(AppConfig.name + ':home')
 
