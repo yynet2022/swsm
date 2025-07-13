@@ -35,6 +35,7 @@ class Schedule(models.Model):
     ze_time = models.TimeField('在宅終了時間', default=DEFAULT_E_TIME)
     description = models.TextField('補足', blank=True)
     created_at = models.DateTimeField('作成日', default=timezone.now)
+    updated_at = models.DateTimeField('更新日', auto_now=True)
 
     def vacation_f(self):
         return self.get_vacation_display()

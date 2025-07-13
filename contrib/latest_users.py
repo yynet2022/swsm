@@ -9,31 +9,36 @@ if os.path.dirname(__file__).endswith('contrib'):
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 
-import django
+import django  # noqa: E402
 django.setup()
 
-from django.contrib.auth import get_user_model
+from django.utils import timezone  # noqa: E402
+from django.contrib.auth import get_user_model  # noqa: E402
+
+from swsm.models import UserLog, Schedule  # noqa: E402
+
 User = get_user_model()
 
-from swsm.models import UserLog, Schedule
+# VERBOSE = False
 
-VERBOSE=False
+# 比較の基準となる、十分に古いawareな日付を用意
+# スクリプト実行時のタイムゾーンを使う
+base_ts = datetime.datetime(2000, 1, 1, tzinfo=timezone.get_current_timezone())
+
+# 現時刻
+now_ts = timezone.now()
+
 for user in User.objects.filter(is_active=True):
-    now = datetime.datetime.now(datetime.timezone.utc)
-    n = datetime.datetime(year=2000, month=1, day=1, tzinfo=now.tzinfo)
+    ts = base_ts
 
-    try:
-        log = UserLog.objects.filter(user=user).latest('created_at')
-        if n < log.created_at:
-            n = log.created_at
-    except UserLog.DoesNotExist as e:
-        pass
+    # UserLog の最新レコードを取得（なければ None が返る）
+    log = UserLog.objects.filter(user=user).order_by('-created_at').first()
+    if log:
+        ts = max(ts, log.created_at)
 
-    try:
-        sch = Schedule.objects.filter(user=user).latest('created_at')
-        if n < sch.created_at:
-            n = sch.created_at
-    except Schedule.DoesNotExist as e:
-        pass
+    # Schedule の最新レコードを取得（なければ None が返る）
+    sch = Schedule.objects.filter(user=user).order_by('-updated_at').first()
+    if sch:
+        ts = max(ts, sch.updated_at)
 
-    print(user.email, n, now - n, sep='\t')
+    print(user.email, timezone.localtime(ts), now_ts - ts, sep='\t')
