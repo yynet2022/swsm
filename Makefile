@@ -7,6 +7,7 @@ all:
 check:
 	flake8 --exclude migrations euser/ || true
 	flake8 --exclude migrations swsm/  || true
+	flake8 contrib/  || true
 
 clean:
 	rm -f db.sqlite3 
