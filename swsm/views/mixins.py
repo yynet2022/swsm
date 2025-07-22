@@ -92,7 +92,8 @@ class MonthCalendarMixin(BaseCalendarMixin):
         if w[-1][-1].month == date.month:
             b = w[-1][-1] + datetime.timedelta(days=1)
             wn = [b + datetime.timedelta(days=i) for i in range(7)]
-        return [wp] + w + [wn]
+        # return [wp] + w + [wn]
+        return ([wp] if wp else []) + w + ([wn] if wn else [])
 
     def get_month_calendar(self, date):
         current_month = date.replace(day=1)
